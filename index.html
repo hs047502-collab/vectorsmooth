@@ -1,0 +1,3607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VectorSmooth Pro — marketplace-safe vector smoothing</title>
+<meta name="description" content="Smooth SVG paths without ever changing the subject. Subject-lock guarantee, unlimited batch, marketplace checklists. 100% in your browser.">
+<meta property="og:title" content="VectorSmooth Pro">
+<meta property="og:description" content="Smooth the path, never change the subject. Batch-clean SVGs for marketplaces, right in your browser.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M4 22 C10 22 10 10 16 10 C22 10 22 22 28 22' fill='none' stroke='%236366f1' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='4' cy='22' r='3' fill='%2322d3ee'/%3E%3Ccircle cx='28' cy='22' r='3' fill='%2322d3ee'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#0b1020; --panel:#131a30; --panel2:#0f1530; --line:#243056;
+    --ink:#e8ecf8; --mut:#9aa4c4; --acc:#6366f1; --acc2:#22d3ee;
+    --ok:#34d399; --warn:#fbbf24; --bad:#f87171;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 80% -10%,#1b2450 0%,var(--bg) 60%);
+       color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{padding:26px 22px 8px;max-width:1180px;margin:0 auto}
+  header h1{margin:0;font-size:26px;letter-spacing:.3px}
+  header h1 span{background:linear-gradient(90deg,var(--acc2),var(--acc));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  header p{margin:6px 0 0;color:var(--mut);max-width:70ch}
+  main{max-width:1180px;margin:0 auto;padding:14px 22px 60px;display:grid;gap:14px}
+  .panel{background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .grid{display:grid;gap:12px}
+  @media(min-width:900px){.controls{grid-template-columns:1fr 1fr 1fr 1fr}}
+  label{display:grid;gap:4px;font-size:13px;color:var(--mut)}
+  select,input[type=file]{background:#0b1126;border:1px solid var(--line);color:var(--ink);
+    border-radius:9px;padding:8px 10px;font-size:14px}
+  button{cursor:pointer;border:1px solid var(--line);border-radius:10px;padding:9px 16px;
+    background:#1a2350;color:var(--ink);font-size:14px;font-weight:600}
+  button:hover:not(:disabled){border-color:var(--acc)}
+  button:disabled{opacity:.45;cursor:wait}
+  button.primary{background:linear-gradient(90deg,#4f46e5,#7c3aed);border:none;padding:10px 26px}
+  button.ghost{background:transparent}
+  input[type=range]{width:100%;accent-color:var(--acc)}
+  .pill{display:inline-block;padding:2px 12px;border-radius:99px;font-size:12px;font-weight:700}
+  .pill.ok{background:#06352a;color:var(--ok)} .pill.warn{background:#3d2c07;color:var(--warn)}
+  .pill.bad{background:#3d1113;color:var(--bad)} .pill.info{background:#1a2350;color:var(--acc2)}
+  #status{font-size:14px;color:var(--mut)}
+  #status b{color:var(--ink)}
+  .stats{display:grid;gap:10px;margin:12px 0}
+  @media(min-width:760px){.stats{grid-template-columns:repeat(5,1fr)}}
+  .stat{background:#0b1126;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+  .stat .k{font-size:12px;color:var(--mut)} .stat .v{font-size:20px;font-weight:700}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
+  .tabs button{padding:7px 14px;font-weight:600}
+  .tabs button.on{background:linear-gradient(90deg,#4f46e5,#7c3aed);border:none}
+  .view{display:none} .view.on{display:block}
+  .ba{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+  .ba svg{display:block;width:100%;height:auto}
+  .ba .after{position:absolute;inset:0;background:#fff}
+  .ba .tag{position:absolute;top:8px;font-size:11px;font-weight:800;letter-spacing:.08em;
+    padding:2px 10px;border-radius:99px;color:#fff}
+  .ba .tag.b{left:8px;background:#f59e0b} .ba .tag.a{right:8px;background:#10b981}
+  .ba .handle{position:absolute;top:0;bottom:0;width:2px;background:var(--acc2)}
+  .ba .overlay{position:absolute;inset:0;pointer-events:none}
+  .ba .overlay svg{width:100%;height:100%}
+  .side{display:grid;gap:12px} @media(min-width:760px){.side{grid-template-columns:1fr 1fr}}
+  .side figure{margin:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+  .side figcaption{background:var(--panel);padding:6px 12px;font-size:13px;color:var(--mut)}
+  .side svg{display:block;width:100%;height:auto}
+  .qaimg{max-width:100%;border:1px solid var(--line);border-radius:12px;background:#fff}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{color:var(--mut);font-weight:600}
+  .mono{font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  ul.clean{list-style:none;margin:8px 0;padding:0;display:grid;gap:6px}
+  ul.clean li{background:#0b1126;border:1px solid var(--line);border-radius:9px;padding:7px 11px;font-size:13px}
+  .scores{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 10px}
+  .score{background:#0b1126;border:1px solid var(--line);border-radius:10px;padding:6px 12px;font-size:13px}
+  .score b{font-size:16px}
+  .hidden{display:none!important}
+  footer{max-width:1180px;margin:0 auto;padding:0 22px 40px;color:var(--mut);font-size:13px}
+  .chk{display:flex;gap:8px;align-items:baseline}
+  .pro-badge{background:linear-gradient(90deg,#f59e0b,#ef4444);color:#fff;border:none}
+  .trust{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  details.help{margin-top:10px;font-size:13px;color:var(--mut)}
+  details.help summary{cursor:pointer;color:var(--acc2);font-weight:600}
+  details.help div{background:#0b1126;border:1px solid var(--line);border-radius:10px;
+    padding:10px 14px;margin-top:6px}
+  .drop{border:2px dashed var(--line);border-radius:14px;padding:18px;text-align:center;
+    color:var(--mut);transition:border-color .15s,background .15s}
+  .drop.over{border-color:var(--acc2);background:#0e1a3a;color:var(--ink)}
+  .drop b{color:var(--ink)}
+  #queue{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px;max-height:260px;overflow-y:auto}
+  #queue li{display:flex;gap:8px;align-items:center;background:#0b1126;
+    border:1px solid var(--line);border-radius:9px;padding:6px 10px;font-size:13px;cursor:pointer}
+  #queue li.sel{border-color:var(--acc)}
+  #queue li .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #queue li .meta{color:var(--mut);font-size:12px;white-space:nowrap}
+  #queue li .x{background:none;border:none;color:var(--mut);padding:2px 6px;font-size:14px}
+  #queue li .x:hover{color:var(--bad)}
+  .bar{flex:1;min-width:140px;height:10px;background:#0b1126;border:1px solid var(--line);
+    border-radius:99px;overflow:hidden}
+  .bar > div{height:100%;width:0;background:linear-gradient(90deg,var(--acc2),var(--acc))}
+</style>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+</head>
+<body>
+<header>
+  <h1>Vector<span>Smooth</span> <span class="pill pro-badge">PRO</span> <span class="pill info" id="enginePill">engine loading…</span></h1>
+  <p>Smooth the path, never change the subject. Every candidate is measured against the
+     original and rolled back automatically if it moves too far. Runs 100% in your browser —
+     your files never leave your device.</p>
+  <div class="trust">
+    <span class="pill ok">🔒 subject-lock guarantee</span>
+    <span class="pill ok">📦 unlimited batch</span>
+    <span class="pill ok">✅ marketplace checklists</span>
+    <span class="pill ok">💻 private by design</span>
+  </div>
+  <details class="help">
+    <summary>How it works (60 seconds)</summary>
+    <div>
+      <b>1.</b> Drop SVG files or a whole folder (or pick a sample).
+      <b>2.</b> Choose a preset + mode, hit <b>Smooth all</b>.
+      <b>3.</b> Inspect the before/after slider, pixel-QA and checklist, then download —
+      single files or everything as a .zip.<br><br>
+      <b>SAFE</b> = marketplace clean (fidelity never drops below 80).
+      <b>PRO</b> = professional optimize (stronger reduction, same hard budget).
+      Sliders override the preset when the checkbox is ticked.<br><br>
+      Four locks protect your artwork: cleanup budget, neighbour-clearance caps,
+      a separation backstop, and render-vs-render QA gates (see the Pixel QA tab).
+      Anything suspicious → the original is returned untouched.
+      Works straight from a double-clicked file or any static host (GitHub Pages,
+      Netlify…); only the one-time Python-engine download needs internet.
+    </div>
+  </details>
+</header>
+<main>
+  <section class="panel">
+    <div class="drop" id="drop">
+      <div><b>Drop SVG files or whole folders here</b> — unlimited batch, subfolders included</div>
+      <div class="row" style="justify-content:center;margin-top:8px">
+        <button class="ghost" id="addFiles">+ Add files</button>
+        <button class="ghost" id="addFolder">+ Add folder</button>
+        <input type="file" id="fileMulti" accept=".svg,image/svg+xml" multiple hidden>
+        <input type="file" id="folderInput" webkitdirectory hidden>
+      </div>
+      <div class="row" style="justify-content:center;margin-top:8px">
+        <span>or try a sample:</span>
+        <button class="ghost" data-sample="samples/star_jitter.svg">★ star + jitter</button>
+        <button class="ghost" data-sample="samples/blob_noise.svg">● noisy blob</button>
+        <button class="ghost" data-sample="samples/rounded_square_dense.svg">▢ dense square</button>
+      </div>
+    </div>
+    <ul id="queue"></ul>
+    <div class="row" style="margin-top:8px">
+      <div class="bar"><div id="barFill"></div></div>
+      <span id="batchTxt" style="color:var(--mut);font-size:13px"></span>
+      <button class="ghost hidden" id="stopBtn">⏹ Stop</button>
+    </div>
+    <div class="grid controls" style="margin-top:12px">
+      <label>Preset
+        <select id="preset">
+          <option value="auto" selected>auto (detect)</option>
+          <option value="clean">clean — tiny touch-up</option>
+          <option value="icon">icon — crisp, faithful</option>
+          <option value="illustration">illustration — balanced</option>
+          <option value="traced">traced — strong cleanup</option>
+          <option value="heavy">heavy — maximum smooth</option>
+        </select>
+      </label>
+      <label>Mode
+        <select id="mode">
+          <option value="safe" selected>SAFE — marketplace clean</option>
+          <option value="pro">PRO — professional optimize</option>
+        </select>
+      </label>
+      <label>Marketplace checklist
+        <select id="site">
+          <option value="auto" selected>auto (core checks)</option>
+          <option value="generic_svg">Generic SVG</option>
+          <option value="adobe_stock">Adobe Stock</option>
+          <option value="shutterstock">Shutterstock</option>
+          <option value="vecteezy">Vecteezy</option>
+          <option value="freepik">Freepik</option>
+          <option value="icon">Icon set</option>
+          <option value="silhouette">Silhouette</option>
+          <option value="eps10">EPS 10</option>
+          <option value="eps8">EPS 8</option>
+        </select>
+      </label>
+      <label>EPS export level
+        <select id="epsLevel"><option value="10" selected>EPS 10</option><option value="8">EPS 8</option></select>
+      </label>
+      <label>Smoothness <b id="smoothVal">auto</b>
+        <input type="range" id="smooth" min="0" max="100" value="45">
+      </label>
+      <label>Fidelity <b id="fidVal">auto</b>
+        <input type="range" id="fid" min="0" max="100" value="75">
+      </label>
+      <label style="justify-content:end"><span><input type="checkbox" id="useSliders"> override preset with sliders</span></label>
+      <label style="justify-content:end"><span><input type="checkbox" id="convShapes" checked> convert shapes → path</span></label>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="primary" id="run" disabled>Smooth selected</button>
+      <button id="runAll" disabled>Smooth all</button>
+      <button class="ghost" id="dlAll" disabled>⬇ All (.zip)</button>
+      <button class="ghost" id="clearQ">Clear queue</button>
+      <span id="status">loading engine…</span>
+    </div>
+  </section>
+
+  <section class="panel hidden" id="results">
+    <div class="row">
+      <h2 style="margin:0;font-size:18px">Result</h2>
+      <span class="mono" id="resFile" style="color:var(--acc2)"></span>
+      <span class="pill ok" id="verdict">smoothed</span>
+      <span class="mono" id="optline" style="color:var(--mut)"></span>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k">anchors</div><div class="v" id="stAnchors">–</div></div>
+      <div class="stat"><div class="k">max deviation</div><div class="v" id="stDev">–</div></div>
+      <div class="stat"><div class="k">silhouette IoU</div><div class="v" id="stIou">–</div></div>
+      <div class="stat"><div class="k">reverted paths</div><div class="v" id="stRev">–</div></div>
+      <div class="stat"><div class="k">time</div><div class="v" id="stTime">–</div></div>
+    </div>
+    <div class="tabs">
+      <button data-view="vCompare" class="on">Before / After</button>
+      <button data-view="vSide">Side by side</button>
+      <button data-view="vQa">Pixel QA</button>
+      <button data-view="vPaths">Paths</button>
+      <button data-view="vCheck">Checklist</button>
+    </div>
+    <div class="view on" id="vCompare">
+      <div class="row" style="margin-bottom:8px">
+        <label style="flex:1">drag to compare <input type="range" id="baRange" min="0" max="100" value="50"></label>
+        <label><span><input type="checkbox" id="ovAnchors"> anchors</span></label>
+        <label><span><input type="checkbox" id="ovSegs"> segment colors <span class="mono" style="color:var(--mut)">(L blue · C purple)</span></span></label>
+      </div>
+      <div class="ba" id="ba">
+        <div class="before" id="baBefore"></div>
+        <div class="after" id="baAfter"><span class="tag a">AFTER</span></div>
+        <span class="tag b">BEFORE</span>
+        <div class="handle" id="baHandle"></div>
+        <div class="overlay" id="baOverlay"></div>
+      </div>
+    </div>
+    <div class="view" id="vSide"><div class="side">
+      <figure><figcaption>before</figcaption><div id="sideBefore"></div></figure>
+      <figure><figcaption>after</figcaption><div id="sideAfter"></div></figure>
+    </div></div>
+    <div class="view" id="vQa">
+      <p style="color:var(--mut)">Both renders rasterized and compared pixel-by-pixel
+        (white = identical, red = removed, green = added).</p>
+      <img class="qaimg" id="qaImg" alt="pixel diff">
+      <ul class="clean" id="qaNums"></ul>
+    </div>
+    <div class="view" id="vPaths"><div style="overflow-x:auto"><table>
+      <thead><tr><th>#</th><th>shape</th><th>status</th><th>anchors</th>
+      <th>dev / budget</th><th>corners</th><th>segments</th><th>note</th></tr></thead>
+      <tbody id="pathRows"></tbody>
+    </table></div></div>
+    <div class="view" id="vCheck">
+      <div class="scores" id="scores"></div>
+      <ul class="clean" id="checkRows"></ul>
+      <p style="color:var(--mut);font-size:12px">Scores are diagnostic only — no marketplace
+        acceptance is guaranteed. Fix flagged items manually before submitting.</p>
+    </div>
+    <h3 style="font-size:15px;margin:14px 0 4px">Engine notes</h3>
+    <ul class="clean" id="notes"></ul>
+    <div class="row" style="margin-top:12px">
+      <button id="dlSvg">⬇ Download SVG</button>
+      <button id="dlEps">⬇ Download EPS</button>
+      <span id="dlStatus" style="color:var(--mut)"></span>
+    </div>
+  </section>
+</main>
+<footer>
+  <b>VectorSmooth Pro</b> · smooth → compare → rollback if the shape changes.
+  Budgets are measured in artwork units; nothing may move past the cap, ever.<br>
+  <span style="font-size:12px">Single-file app — engine embedded, no install, no upload. <!--BUILD 2026-09-21 engine-d0017d717189--></span>
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+let PY = null, READY = false, SVG_IN = '', RES = null, LAST_OPTS = null;
+let FILES = [], NEXT_ID = 1, SEL_ID = null, BATCH_STOP = false, BUSY = false;
+const sel = () => FILES.find(f => f.id === SEL_ID) || null;
+
+function setStatus(html){ $('status').innerHTML = html; }
+function sanitize(svg){
+  return svg.replace(/<\?[\s\S]*?\?>/g,'').replace(/<!DOCTYPE[\s\S]*?>/gi,'')
+            .replace(/<script[\s\S]*?<\/script\s*>/gi,'');
+}
+
+const DRIVER = `
+import json
+import numpy as np
+from core.pipeline import run, export_eps
+
+def _num(x):
+    import math
+    if isinstance(x, np.ndarray): return _num(x.tolist())
+    if isinstance(x, (np.integer,)): return int(x)
+    if isinstance(x, (np.floating,)): return float(x)
+    if isinstance(x, dict): return {k: _num(v) for k, v in x.items()}
+    if isinstance(x, (list, tuple)): return [_num(v) for v in x]
+    if isinstance(x, float) and (math.isnan(x) or math.isinf(x)): return None
+    return x
+
+def _pt(p):
+    return [round(float(v), 3) for v in np.asarray(p, float).ravel().tolist()]
+
+def run_json(svg_text, opts_json):
+    out = run(svg_text, json.loads(opts_json), do_qa=True)
+    paths = []
+    for sp, r in zip(out['art']['subpaths'], out['results']):
+        segs = [[s[0]] + [_pt(p) for p in s[1:]] for s in r['segments']]
+        paths.append({'tag': sp['tag'], 'status': r['status'],
+            'reason': str(r.get('reason', '')),
+            'dev': round(float(r['dev']), 4), 'budget': round(float(r['budget']), 4),
+            'corners': int(r['corners']), 'closed': bool(r['closed']),
+            'anchors_before': int(r['anchors_before']),
+            'anchors_after': int(r['anchors_after']),
+            'start': _pt(r['start']), 'segs': segs})
+    return json.dumps(_num({
+        'svg_out': out['svg_out'], 'global_revert': bool(out['global_revert']),
+        'summary': out['summary'], 'notes': [str(n) for n in out['notes']],
+        'qa': out['qa'], 'compare_png_b64': out['compare_png_b64'],
+        'checklist': out['checklist'], 'scores': out['scores'],
+        'site_label': out['site_label'], 'seconds': out['seconds'],
+        'options': out['options'], 'preset_used': out['preset_used'],
+        'vb': [float(v) for v in out['art']['vb']],
+        'W': float(out['art']['W']), 'H': float(out['art']['H']),
+        'paths': paths}))
+
+def eps_json(svg_text, opts_json, level):
+    eps, notes, out = export_eps(svg_text, json.loads(opts_json), level=int(level))
+    return json.dumps({'eps': eps, 'notes': [str(n) for n in _num(notes)]})
+`;
+
+function embeddedText(id){
+  // engine/samples ship INSIDE this file so it works from file:// too;
+  // the build script pads the block with one newline on each side, which
+  // we strip here to recover the byte-exact original.
+  const el = document.getElementById(id);
+  if(!el) return null;
+  let t = el.textContent;
+  if(!t) return null;
+  if(t.charAt(0) === '\n') t = t.slice(1);
+  if(t.charAt(t.length - 1) === '\n') t = t.slice(0, -1);
+  return t || null;
+}
+
+async function boot(){
+  if(READY || BUSY) return;
+  BUSY = true; refreshButtons();
+  try{
+    setStatus('loading Pyodide…');
+    PY = await loadPyodide();
+    setStatus('loading numpy / scipy / pillow…');
+    await PY.loadPackage(['numpy', 'scipy', 'pillow']);
+    setStatus('loading VectorSmooth engine…');
+    PY.FS.mkdirTree('/engine/core');
+    for(const f of ['__init__.py','svg_parse.py','geometry.py','clean.py',
+                    'raster.py','validate.py','export.py','pipeline.py']){
+      const emb = embeddedText('emb-core-' + f);
+      if(emb !== null){
+        PY.FS.writeFile('/engine/core/' + f, emb);
+        continue;
+      }
+      const r = await fetch('core/' + f);  // dev fallback (unbuilt file)
+      if(!r.ok) throw new Error('core/' + f + ' → HTTP ' + r.status);
+      PY.FS.writeFile('/engine/core/' + f, await r.text());
+    }
+    PY.FS.chdir('/engine');
+    PY.runPython(DRIVER);
+    READY = true;
+    BUSY = false;
+    refreshButtons();
+    $('enginePill').textContent = 'engine ready';
+    $('enginePill').className = 'pill ok';
+    setStatus('<b>Ready.</b> Drop SVG files / folders, pick samples, then “Smooth selected” or “Smooth all”.');
+  }catch(e){
+    console.error(e);
+    $('enginePill').textContent = 'engine failed';
+    $('enginePill').className = 'pill bad';
+    BUSY = false;
+    refreshButtons();
+    setStatus('<b>Could not start the engine:</b> ' + esc(e.message || e) +
+      ' — this one-time download needs internet (Python + numpy/scipy). ' +
+      '<button class="ghost" onclick="boot()" style="padding:4px 12px">↻ Retry</button>');
+  }
+}
+
+function currentOpts(){
+  const useSl = $('useSliders').checked;
+  return {preset: $('preset').value, mode: $('mode').value,
+    smoothness: useSl ? +$('smooth').value : null,
+    fidelity: useSl ? +$('fid').value : null,
+    marketplace: $('site').value, convert_shapes: $('convShapes').checked};
+}
+
+/* ---------- batch queue: unlimited files + folders ---------- */
+function readText(file){
+  return new Promise((res, rej) => {
+    const rd = new FileReader();
+    rd.onload = () => res(String(rd.result));
+    rd.onerror = () => rej(rd.error);
+    rd.readAsText(file);
+  });
+}
+
+async function addToQueue(items){
+  // items: [{file, rel}] — folders already flattened by the caller
+  let added = 0, skipped = 0;
+  for(const it of items){
+    const name = it.file.name || 'untitled.svg';
+    if(!/\.svg$/i.test(name)){ skipped++; continue; }
+    try{
+      const text = await readText(it.file);
+      FILES.push({id: NEXT_ID++, name, rel: it.rel || name, text,
+                  status: 'queued', result: null, opts: null, error: ''});
+      added++;
+    }catch(e){ skipped++; }
+  }
+  if(SEL_ID === null && FILES.length) SEL_ID = FILES[0].id;
+  renderQueue();
+  refreshButtons();
+  setStatus(added + ' file(s) queued' + (skipped ? ' · ' + skipped + ' skipped (SVG only)' : '') +
+    ' — hit <b>“Smooth selected”</b> or <b>“Smooth all”</b>.');
+}
+
+async function walkEntry(entry, base, out){
+  if(entry.isFile){
+    const file = await new Promise((res, rej) => entry.file(res, rej));
+    out.push({file, rel: base + file.name});
+  }else if(entry.isDirectory){
+    const reader = entry.createReader();
+    let batch;
+    do{
+      batch = await new Promise((res, rej) => reader.readEntries(res, rej));
+      for(const e of batch) await walkEntry(e, base + entry.name + '/', out);
+    }while(batch.length);
+  }
+}
+
+async function handleDrop(dt){
+  const items = dt.items ? Array.from(dt.items) : [];
+  const withEntry = items.filter(it => it.webkitGetAsEntry);
+  if(withEntry.length && withEntry[0].webkitGetAsEntry){
+    const flat = [];
+    for(const it of withEntry){
+      const e = it.webkitGetAsEntry();
+      if(e) await walkEntry(e, '', flat);
+    }
+    if(flat.length){ await addToQueue(flat); return; }
+  }
+  const files = Array.from(dt.files || []).map(f => ({file: f, rel: f.name}));
+  if(files.length) await addToQueue(files);
+  else setStatus('Nothing readable dropped — try SVG files or folders.');
+}
+
+function renderQueue(){
+  const q = $('queue');
+  q.innerHTML = FILES.map(f => {
+    const pill = f.status === 'done' ? 'ok' : f.status === 'error' ? 'bad' :
+                 f.status === 'doing' ? 'info' : 'warn';
+    let meta = '';
+    if(f.result){
+      const s = f.result.summary;
+      meta = s.anchors_before + '→' + s.anchors_after + ' · dev ' +
+        (+s.deviation_max).toFixed(2) + (s.reverted ? ' · ' + s.reverted + ' rev' : '');
+    }else if(f.error){ meta = f.error; }
+    return '<li data-id="' + f.id + '" class="' + (f.id === SEL_ID ? 'sel' : '') + '">' +
+      '<span class="pill ' + pill + '">' + f.status + '</span>' +
+      '<span class="nm" title="' + esc(f.rel) + '">' + esc(f.rel) + '</span>' +
+      '<span class="meta">' + esc(meta) + '</span>' +
+      '<button class="x" data-x="' + f.id + '" title="remove">×</button></li>';
+  }).join('');
+  q.querySelectorAll('li').forEach(li => li.onclick = e => {
+    if(e.target.dataset.x) return;
+    selectFile(+li.dataset.id);
+  });
+  q.querySelectorAll('[data-x]').forEach(b => b.onclick = () => removeFile(+b.dataset.x));
+}
+
+function selectFile(id){
+  SEL_ID = id;
+  const f = sel();
+  renderQueue();
+  if(f && f.result){
+    SVG_IN = f.text; RES = f.result; LAST_OPTS = f.opts;
+    render();
+    setStatus('showing <b>' + esc(f.rel) + '</b>');
+  }else if(f){
+    SVG_IN = f.text;
+    setStatus('selected <b>' + esc(f.rel) + '</b> — hit “Smooth selected”.');
+  }
+}
+
+function removeFile(id){
+  FILES = FILES.filter(f => f.id !== id);
+  if(SEL_ID === id){
+    SEL_ID = FILES.length ? FILES[0].id : null;
+    const f = sel();
+    if(f && f.result){ SVG_IN = f.text; RES = f.result; LAST_OPTS = f.opts; render(); }
+    else { SVG_IN = ''; $('results').classList.add('hidden'); }
+  }
+  renderQueue();
+  refreshButtons();
+}
+
+function refreshButtons(){
+  const any = FILES.length > 0;
+  const anyDone = FILES.some(f => f.result);
+  $('run').disabled = !READY || !any || BUSY;
+  $('runAll').disabled = !READY || !any || BUSY;
+  $('dlAll').disabled = !anyDone;
+}
+
+function setProgress(done, total){
+  $('barFill').style.width = total ? (100 * done / total) + '%' : '0';
+  $('batchTxt').textContent = total ? done + ' / ' + total : '';
+}
+
+/* ---------- engine runs ---------- */
+async function runOne(f, opts){
+  f.status = 'doing'; f.error = '';
+  renderQueue();
+  await new Promise(r => setTimeout(r, 20));
+  PY.globals.set('SVG_IN', f.text);
+  PY.globals.set('OPTS_JSON', JSON.stringify(opts));
+  try{
+    f.result = JSON.parse(PY.runPython('run_json(SVG_IN, OPTS_JSON)'));
+    f.opts = Object.assign({}, opts);
+    f.status = 'done';
+  }catch(e){
+    console.error(e);
+    f.result = null; f.status = 'error';
+    f.error = String(e.message || e).slice(0, 120);
+  }
+  renderQueue();
+}
+
+async function runSelected(){
+  const f = sel();
+  if(!READY){ setStatus('Engine still loading…'); return; }
+  if(!f){ setStatus('Queue is empty — drop files/folders or pick a sample.'); return; }
+  if(BUSY) return;
+  BUSY = true; refreshButtons();
+  setStatus('smoothing <b>' + esc(f.rel) + '</b>…');
+  await runOne(f, currentOpts());
+  SVG_IN = f.text;
+  if(f.result){
+    RES = f.result; LAST_OPTS = f.opts; SEL_ID = f.id;
+    render();
+    setStatus('done in <b>' + RES.seconds + 's</b> <span class="mono">' +
+      RES.options + ' · ' + RES.preset_used + ' · ' + RES.site_label + '</span>');
+  }else{
+    setStatus('<b>Failed:</b> ' + esc(f.error));
+  }
+  BUSY = false; refreshButtons();
+}
+
+async function runAll(){
+  if(!READY || BUSY || !FILES.length) return;
+  BUSY = true; BATCH_STOP = false; refreshButtons();
+  $('stopBtn').classList.remove('hidden');
+  const opts = currentOpts();
+  let ok = 0, fail = 0;
+  for(let i = 0; i < FILES.length; i++){
+    if(BATCH_STOP) break;
+    const f = FILES[i];
+    setStatus('smoothing <b>' + esc(f.rel) + '</b> (' + (i + 1) + '/' + FILES.length + ')…');
+    await runOne(f, opts);
+    f.result ? ok++ : fail++;
+    setProgress(i + 1, FILES.length);
+  }
+  $('stopBtn').classList.add('hidden');
+  const first = FILES.find(f => f.result);
+  if(first){ SEL_ID = first.id; SVG_IN = first.text; RES = first.result; LAST_OPTS = first.opts; render(); }
+  setStatus((BATCH_STOP ? 'stopped — ' : 'batch done — ') + '<b>' + ok + ' ok</b>' +
+    (fail ? ', <b>' + fail + ' failed</b>' : '') + '. Click any file to inspect it.');
+  BUSY = false; refreshButtons();
+}
+
+function loadJsZip(){
+  if(window.JSZip) return Promise.resolve();
+  return new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+    s.onload = res; s.onerror = () => rej(new Error('zip lib failed to load'));
+    document.head.appendChild(s);
+  });
+}
+
+async function downloadAll(){
+  const done = FILES.filter(f => f.result);
+  if(!done.length) return;
+  setStatus('packing ' + done.length + ' file(s)…');
+  await new Promise(r => setTimeout(r, 20));
+  try{
+    await loadJsZip();
+    const zip = new JSZip();
+    done.forEach(f => {
+      const out = f.rel.replace(/\.svg$/i, '') + '-smooth.svg';
+      zip.file(out, f.result.svg_out);
+    });
+    const blob = await zip.generateAsync({type: 'blob'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'vectorsmooth-batch.zip';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    setStatus('packed <b>' + done.length + ' file(s)</b> into vectorsmooth-batch.zip');
+  }catch(e){
+    // offline fallback: sequential downloads
+    setStatus('zip unavailable (' + e.message + ') — downloading one by one…');
+    for(const f of done){
+      download(f.rel.replace(/\.svg$/i, '') + '-smooth.svg', f.result.svg_out, 'image/svg+xml');
+      await new Promise(r => setTimeout(r, 400));
+    }
+  }
+}
+
+function render(){
+  const R = RES, s = R.summary;
+  $('results').classList.remove('hidden');
+  $('resFile').textContent = sel() ? sel().rel : '';
+  const v = $('verdict');
+  if(R.global_revert){ v.textContent = 'kept original — nothing passed the guard'; v.className = 'pill warn'; }
+  else if(s.reverted){ v.textContent = 'smoothed · ' + s.reverted + ' path(s) rolled back'; v.className = 'pill warn'; }
+  else { v.textContent = 'smoothed ✓'; v.className = 'pill ok'; }
+  $('optline').textContent = R.options + ' · ' + R.preset_used + ' · ' + R.site_label;
+  $('stAnchors').textContent = s.anchors_before + ' → ' + s.anchors_after;
+  $('stDev').textContent = (+s.deviation_max).toFixed(3) + ' / ' + (+s.budget).toFixed(3) + ' u';
+  const iou = R.qa ? R.qa.render.silhouette_iou : 1;
+  $('stIou').textContent = (100 * iou).toFixed(2) + '%';
+  $('stRev').textContent = s.reverted;
+  $('stTime').textContent = R.seconds + 's';
+  // views
+  $('baBefore').innerHTML = sanitize(SVG_IN);
+  $('baAfter').insertAdjacentHTML('afterbegin', sanitize(R.svg_out));
+  while($('baAfter').childNodes.length > 2) $('baAfter').removeChild($('baAfter').childNodes[1]);
+  $('sideBefore').innerHTML = sanitize(SVG_IN);
+  $('sideAfter').innerHTML = sanitize(R.svg_out);
+  updateBA(); renderOverlay();
+  if(R.compare_png_b64) $('qaImg').src = 'data:image/png;base64,' + R.compare_png_b64;
+  const q = R.qa ? R.qa.render : {}, t = R.qa ? R.qa.topology : {};
+  const g = R.qa ? R.qa.gates : null;
+  const tick = p => p ? '✓' : '✗';
+  const gatesLi = g ? li('subject-lock gates: IoU <b>' + g.iou.value.toFixed(4) + ' / ' + g.iou.floor + ' ' + tick(g.iou.pass) + '</b>' +
+    ' · changed <b>' + g.changed.value.toFixed(2) + ' / ' + g.changed.ceil + '% ' + tick(g.changed.pass) + '</b>' +
+    ' · chamfer <b>' + g.chamfer.value.toFixed(2) + ' / ' + g.chamfer.ceil + 'px ' + tick(g.chamfer.pass) + '</b>') : '';
+  $('qaNums').innerHTML = gatesLi +
+    li('silhouette IoU <b>' + pct(q.silhouette_iou) + '</b>') +
+    li('chamfer <b>' + num(q.chamfer_px) + ' px</b> · pixels changed <b>' + pct100(q.pixels_changed_pct) + '</b> · alpha-SSIM <b>' + num(q.ssim_alpha) + '</b>') +
+    li('winding preserved: <b>' + t.winding_preserved + '</b> · subpaths ' + t.subpaths_before + ' → ' + t.subpaths_after +
+       ' · closed ' + t.closed_before + ' → ' + t.closed_after);
+  $('pathRows').innerHTML = R.paths.map((p, i) => {
+    const pill = p.status === 'smoothed' ? 'ok' : (p.status === 'reverted' ? 'warn' : 'info');
+    const counts = {};
+    p.segs.forEach(sg => counts[sg[0]] = (counts[sg[0]] || 0) + 1);
+    const segTxt = Object.entries(counts).map(([k, n]) => n + '×' + k).join(' + ') || '—';
+    return '<tr><td>' + (i + 1) + '</td><td class="mono">' + p.tag + (p.closed ? ' ●' : ' ○') + '</td>' +
+      '<td><span class="pill ' + pill + '">' + p.status + '</span></td>' +
+      '<td>' + p.anchors_before + ' → ' + p.anchors_after + '</td>' +
+      '<td class="mono">' + p.dev + ' / ' + p.budget + '</td><td>' + p.corners + '</td>' +
+      '<td class="mono">' + segTxt + '</td><td>' + esc(p.reason) + '</td></tr>';
+  }).join('');
+  $('scores').innerHTML = Object.entries(R.scores || {}).map(([k, n]) =>
+    '<span class="score">' + k.replace(/_/g, ' ') + ' <b>' + n + '</b></span>').join('');
+  $('checkRows').innerHTML = (R.checklist || []).map(c => {
+    const pill = c.status === 'pass' ? 'ok' : (c.status === 'warn' ? 'warn' : 'bad');
+    return '<li><span class="chk"><span class="pill ' + pill + '">' + c.status + '</span>' +
+      '<span><b>' + esc(c.label) + '</b> — ' + esc(c.detail || '') + '</span></span></li>';
+  }).join('');
+  $('notes').innerHTML = (R.notes.length ? R.notes : ['(no notes)'])
+    .map(n => li(esc(n))).join('');
+  $('dlStatus').textContent = '';
+}
+const li = h => '<li>' + h + '</li>';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const num = x => (x === null || x === undefined) ? '–' : (+x).toFixed(3);
+const pct = x => (x === null || x === undefined) ? '–' : (100 * x).toFixed(2) + '%';
+const pct100 = x => (x === null || x === undefined) ? '–' : (+x).toFixed(2) + '%';
+
+function updateBA(){
+  const v = +$('baRange').value;  // left = BEFORE, right = AFTER
+  const clip = 'inset(0 0 0 ' + v + '%)';
+  $('baAfter').style.clipPath = clip;
+  $('baAfter').style.webkitClipPath = clip;
+  $('baOverlay').style.clipPath = clip;  // overlay shows after-geometry
+  $('baOverlay').style.webkitClipPath = clip;
+  $('baHandle').style.left = 'calc(' + v + '% - 1px)';
+}
+
+function renderOverlay(){
+  const box = $('baOverlay');
+  if(!RES){ box.innerHTML = ''; return; }
+  const showA = $('ovAnchors').checked, showS = $('ovSegs').checked;
+  if(!showA && !showS){ box.innerHTML = ''; return; }
+  const [vx, vy, vw, vh] = RES.vb;
+  const r = vw / 220, w = vw / 350;
+  let inner = '';
+  RES.paths.forEach(p => {
+    if(!['smoothed', 'passthrough'].includes(p.status) || !p.segs.length) return;
+    let cur = p.start;
+    const pts = [cur];
+    let dL = '', dC = '';
+    p.segs.forEach(sg => {
+      const e = sg[sg.length - 1];
+      if(sg[0] === 'L') dL += 'M' + cur + 'L' + e;
+      else if(sg[0] === 'C') dC += 'M' + cur + 'C' + sg[1] + ' ' + sg[2] + ' ' + e;
+      cur = e; pts.push(e);
+    });
+    if(showS){
+      if(dL) inner += '<path d="' + dL + '" fill="none" stroke="#0ea5e9" stroke-width="' + w + '" opacity="0.95"/>';
+      if(dC) inner += '<path d="' + dC + '" fill="none" stroke="#a78bfa" stroke-width="' + w + '" opacity="0.95"/>';
+    }
+    if(showA) pts.forEach(q => {
+      inner += '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="' + r + '" fill="#f43f5e" stroke="#fff" stroke-width="' + (w / 3) + '"/>';
+    });
+  });
+  box.innerHTML = '<svg viewBox="' + vx + ' ' + vy + ' ' + vw + ' ' + vh +
+    '" preserveAspectRatio="xMidYMid meet">' + inner + '</svg>';
+}
+
+function download(name, text, mime){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], {type: mime}));
+  a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+async function loadSample(url){
+  try{
+    setStatus('loading ' + url + '…');
+    const base = url.split('/').pop();
+    let text = embeddedText('emb-sample-' + base);
+    if(text === null){
+      const r = await fetch(url);
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      text = await r.text();
+    }
+    const name = base;
+    let f = FILES.find(x => x.rel === url);
+    if(!f){
+      f = {id: NEXT_ID++, name, rel: url, text, status: 'queued',
+           result: null, opts: null, error: ''};
+      FILES.push(f);
+    }else{ f.text = text; }
+    SEL_ID = f.id;
+    renderQueue();
+    refreshButtons();
+    selectFile(f.id);
+  }catch(e){ setStatus('<b>Could not load sample:</b> ' + e.message); }
+}
+
+// wiring
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.classList.remove('on'));
+  document.querySelectorAll('.view').forEach(x => x.classList.remove('on'));
+  b.classList.add('on'); $(b.dataset.view).classList.add('on');
+});
+document.querySelectorAll('[data-sample]').forEach(b =>
+  b.onclick = () => loadSample(b.dataset.sample));
+$('addFiles').onclick = () => $('fileMulti').click();
+$('addFolder').onclick = () => $('folderInput').click();
+$('fileMulti').onchange = e => {
+  const files = Array.from(e.target.files || []).map(f => ({file: f, rel: f.name}));
+  e.target.value = '';
+  if(files.length) addToQueue(files);
+};
+$('folderInput').onchange = e => {
+  const files = Array.from(e.target.files || [])
+    .map(f => ({file: f, rel: f.webkitRelativePath || f.name}));
+  e.target.value = '';
+  if(files.length) addToQueue(files);
+};
+let dragDepth = 0;
+document.body.addEventListener('dragenter', e => {
+  e.preventDefault();
+  dragDepth++;
+  $('drop').classList.add('over');
+});
+document.body.addEventListener('dragleave', e => {
+  e.preventDefault();
+  if(--dragDepth <= 0){ dragDepth = 0; $('drop').classList.remove('over'); }
+});
+document.body.addEventListener('dragover', e => e.preventDefault());
+document.body.addEventListener('drop', e => {
+  e.preventDefault();
+  dragDepth = 0;
+  $('drop').classList.remove('over');
+  handleDrop(e.dataTransfer);
+});
+$('run').onclick = runSelected;
+$('runAll').onclick = runAll;
+$('stopBtn').onclick = () => { BATCH_STOP = true; };
+$('dlAll').onclick = downloadAll;
+$('clearQ').onclick = () => {
+  if(BUSY) return;
+  FILES = []; SEL_ID = null; SVG_IN = ''; RES = null;
+  $('results').classList.add('hidden');
+  setProgress(0, 0);
+  renderQueue();
+  refreshButtons();
+  setStatus('queue cleared.');
+};
+$('baRange').oninput = updateBA;
+$('ovAnchors').onchange = renderOverlay;
+$('ovSegs').onchange = renderOverlay;
+$('smooth').oninput = e => { $('smoothVal').textContent = e.target.value; saveSettings(); };
+$('fid').oninput = e => { $('fidVal').textContent = e.target.value; saveSettings(); };
+['preset','mode','site','epsLevel','useSliders','convShapes'].forEach(id => {
+  $(id).addEventListener('change', () => {
+    if(id === 'useSliders'){
+      const on = $('useSliders').checked;
+      $('smoothVal').textContent = on ? $('smooth').value : 'auto';
+      $('fidVal').textContent = on ? $('fid').value : 'auto';
+    }
+    saveSettings();
+  });
+});
+const SET_KEY = 'vectorsmooth-pro-settings-v1';
+function saveSettings(){
+  try{
+    localStorage.setItem(SET_KEY, JSON.stringify({
+      preset: $('preset').value, mode: $('mode').value, site: $('site').value,
+      epsLevel: $('epsLevel').value, smooth: $('smooth').value,
+      fid: $('fid').value, useSliders: $('useSliders').checked,
+      convShapes: $('convShapes').checked}));
+  }catch(e){}
+}
+function loadSettings(){
+  let s = {};
+  try{ s = JSON.parse(localStorage.getItem(SET_KEY) || '{}'); }catch(e){}
+  ['preset','mode','site','epsLevel'].forEach(id => { if(s[id]) $(id).value = s[id]; });
+  if(s.smooth) $('smooth').value = s.smooth;
+  if(s.fid) $('fid').value = s.fid;
+  if(s.useSliders !== undefined) $('useSliders').checked = !!s.useSliders;
+  if(s.convShapes !== undefined) $('convShapes').checked = !!s.convShapes;
+  const on = $('useSliders').checked;
+  $('smoothVal').textContent = on ? $('smooth').value : 'auto';
+  $('fidVal').textContent = on ? $('fid').value : 'auto';
+}
+$('dlSvg').onclick = () => {
+  if(!RES) return;
+  const base = sel() ? sel().rel.split('/').pop().replace(/\.svg$/i, '') : 'vectorsmooth';
+  download(base + '-smooth.svg', RES.svg_out, 'image/svg+xml');
+};
+$('dlEps').onclick = async () => {
+  if(!RES || !PY) return;
+  $('dlStatus').textContent = 'building EPS…';
+  await new Promise(r => setTimeout(r, 30));
+  try{
+    PY.globals.set('SVG_IN', SVG_IN);
+    PY.globals.set('OPTS_JSON', JSON.stringify(LAST_OPTS || currentOpts()));
+    const out = JSON.parse(PY.runPython('eps_json(SVG_IN, OPTS_JSON, ' + $('epsLevel').value + ')'));
+    const base = sel() ? sel().rel.split('/').pop().replace(/\.svg$/i, '') : 'vectorsmooth';
+    download(base + '-smooth.eps', out.eps, 'application/postscript');
+    $('dlStatus').textContent = 'EPS ready' + (out.notes.length ? ' — ' + out.notes.join('; ') : '');
+  }catch(e){ $('dlStatus').textContent = 'EPS failed: ' + (e.message || e); }
+};
+loadSettings();
+boot();
+</script>
+<!-- embedded engine + samples: filled by tools/build_standalone.py (idempotent) -->
+<script type="text/x-python" id="emb-core-__init__.py">
+"""vectorsmooth core engine: parse -> clean -> smooth -> guard -> validate -> export."""
+
+</script>
+<script type="text/x-python" id="emb-core-svg_parse.py">
+"""SVG parsing: geometry -> subpaths (world coords), structure kept for rebuild.
+
+Every geometric element (<path> + shapes) becomes one or more subpaths with
+flattened polylines in *world* (artboard) coordinates. Transforms are baked
+into the points; the ancestor matrix is stored so export can convert back to
+local coordinates and keep the element in place inside its <g>.
+"""
+import copy
+import math
+import re
+
+import numpy as np
+import xml.etree.ElementTree as ET
+
+TOKEN = re.compile(r'[MmLlHhVvCcSsQqTtAaZz]|-?\d*\.?\d+(?:[eE][-+]?\d+)?')
+NUM = re.compile(r'-?\d*\.?\d+(?:[eE][-+]?\d+)?')
+TRANS = re.compile(r'(\w+)\s*\(([^)]*)\)')
+
+GEOM_TAGS = {'path', 'rect', 'circle', 'ellipse', 'polygon', 'polyline', 'line'}
+# containers whose subtree may hold real artwork (clip/mask/pattern skipped: semantics risk)
+SKIP_GEOM_IN = {'clipPath', 'mask', 'pattern'}
+INHERIT_KEYS = ('fill', 'stroke', 'stroke-width', 'fill-rule', 'fill-opacity',
+                'stroke-opacity', 'opacity', 'stroke-linejoin', 'stroke-linecap')
+
+
+def _local(tag):
+    return tag.split('}', 1)[-1] if '}' in tag else tag
+
+
+def _parse_len(v, default=0.0):
+    if v is None:
+        return default
+    m = NUM.search(str(v))
+    try:
+        return float(m.group(0)) if m else default
+    except ValueError:
+        return default
+
+
+def parse_transform(s):
+    """Parse an SVG transform attribute into a 3x3 matrix."""
+    M = np.eye(3)
+    if not s:
+        return M
+    for name, argstr in TRANS.findall(s):
+        try:
+            nums = [float(x) for x in NUM.findall(argstr)]
+        except ValueError:
+            continue
+        if name == 'translate' and nums:
+            tx = nums[0]
+            ty = nums[1] if len(nums) > 1 else 0.0
+            T = np.eye(3)
+            T[0, 2] = tx
+            T[1, 2] = ty
+            M = M @ T
+        elif name == 'scale' and nums:
+            sx = nums[0]
+            sy = nums[1] if len(nums) > 1 else sx
+            T = np.eye(3)
+            T[0, 0] = sx
+            T[1, 1] = sy
+            M = M @ T
+        elif name == 'rotate' and nums:
+            a = math.radians(nums[0])
+            c, sn = math.cos(a), math.sin(a)
+            T = np.eye(3)
+            T[0, 0] = c
+            T[0, 1] = -sn
+            T[1, 0] = sn
+            T[1, 1] = c
+            if len(nums) == 3:
+                cx, cy = nums[1], nums[2]
+                M = (M @ np.array([[1, 0, cx], [0, 1, cy], [0, 0, 1]])
+                     @ T @ np.array([[1, 0, -cx], [0, 1, -cy], [0, 0, 1]]))
+            else:
+                M = M @ T
+        elif name == 'matrix' and len(nums) == 6:
+            a, b, c, d, e, f = nums
+            M = M @ np.array([[a, c, e], [b, d, f], [0, 0, 1]])
+        elif name == 'skewX' and nums:
+            t = math.tan(math.radians(nums[0]))
+            M = M @ np.array([[1, t, 0], [0, 1, 0], [0, 0, 1]])
+        elif name == 'skewY' and nums:
+            t = math.tan(math.radians(nums[0]))
+            M = M @ np.array([[1, 0, 0], [t, 1, 0], [0, 0, 1]])
+    return M
+
+
+def apply_mat(M, pts):
+    p = np.asarray(pts, dtype=float)
+    if p.size == 0:
+        return p.reshape(0, 2)
+    h = np.column_stack([p, np.ones(len(p))])
+    return (h @ M.T)[:, :2]
+
+
+# ---------------------------------------------------------------- flattening
+
+def _cubic_flat(p0, p1, p2, p3, tol):
+    """Adaptive-subdivision flatten of one cubic; returns points excluding start."""
+    out = []
+    stack = [(np.asarray(p0, float), np.asarray(p1, float),
+              np.asarray(p2, float), np.asarray(p3, float))]
+    guard = 0
+    while stack and guard < 20000:
+        guard += 1
+        a, b, c, d = stack.pop()
+        ux, uy = d[0] - a[0], d[1] - a[1]
+        L = math.hypot(ux, uy)
+        if L < 1e-12:
+            dev = max(math.hypot(b[0] - a[0], b[1] - a[1]),
+                      math.hypot(c[0] - a[0], c[1] - a[1]))
+        else:
+            dev = max(abs((b[0] - a[0]) * uy - (b[1] - a[1]) * ux),
+                      abs((c[0] - a[0]) * uy - (c[1] - a[1]) * ux)) / L
+        if dev <= tol or L < 1e-9:
+            out.append(d)
+        else:
+            ab = (a + b) / 2
+            bc = (b + c) / 2
+            cd = (c + d) / 2
+            abc = (ab + bc) / 2
+            bcd = (bc + cd) / 2
+            m = (abc + bcd) / 2
+            stack.append((m, bcd, cd, d))
+            stack.append((a, ab, abc, m))
+    return out
+
+
+def _arc_points(p0, rx, ry, phi_deg, large, sweep, p1, tol=0.2):
+    x0, y0 = float(p0[0]), float(p0[1])
+    x1, y1 = float(p1[0]), float(p1[1])
+    rx, ry = abs(float(rx)), abs(float(ry))
+    if rx < 1e-9 or ry < 1e-9 or (abs(x1 - x0) < 1e-12 and abs(y1 - y0) < 1e-12):
+        return [np.array([x1, y1])]
+    phi = math.radians(phi_deg % 360.0)
+    cp, sp = math.cos(phi), math.sin(phi)
+    dx, dy = (x0 - x1) / 2.0, (y0 - y1) / 2.0
+    x1p, y1p = cp * dx + sp * dy, -sp * dx + cp * dy
+    lam = (x1p / rx) ** 2 + (y1p / ry) ** 2
+    if lam > 1:
+        s = math.sqrt(lam)
+        rx *= s
+        ry *= s
+    num = rx * rx * ry * ry - rx * rx * y1p * y1p - ry * ry * x1p * x1p
+    den = rx * rx * y1p * y1p + ry * ry * x1p * x1p
+    f = math.sqrt(max(0.0, num / max(den, 1e-18)))
+    if bool(large) == bool(sweep):
+        f = -f
+    cxp, cyp = f * rx * y1p / ry, -f * ry * x1p / rx
+    cx = cp * cxp - sp * cyp + (x0 + x1) / 2.0
+    cy = sp * cxp + cp * cyp + (y0 + y1) / 2.0
+
+    def _ang(ux, uy, vx, vy):
+        d = math.hypot(ux, uy) * math.hypot(vx, vy)
+        c = max(-1.0, min(1.0, (ux * vx + uy * vy) / max(d, 1e-18)))
+        a = math.acos(c)
+        return -a if ux * vy - uy * vx < 0 else a
+
+    th1 = _ang(1, 0, (x1p - cxp) / rx, (y1p - cyp) / ry)
+    dth = _ang((x1p - cxp) / rx, (y1p - cyp) / ry,
+               (-x1p - cxp) / rx, (-y1p - cyp) / ry)
+    if not sweep and dth > 0:
+        dth -= 2 * math.pi
+    if sweep and dth < 0:
+        dth += 2 * math.pi
+    approx_r = max(rx, ry)
+    n = max(4, min(256, int(abs(dth) * approx_r / max(tol, 1e-6) / 4) + 4))
+    pts = []
+    for t in np.linspace(th1, th1 + dth, n + 1)[1:]:
+        ct, st = math.cos(t), math.sin(t)
+        pts.append(np.array([cp * rx * ct - sp * ry * st + cx,
+                             sp * rx * ct + cp * ry * st + cy]))
+    return pts
+
+
+def _parse_path_d(d, tol):
+    """Parse path data -> (subpaths, n_degenerate). pts exclude duplicated closure."""
+    toks = TOKEN.findall(d or '')
+    subs = []
+    cur = None
+    cmd = None
+    rel = False
+    first_move = True
+    i, n = 0, len(toks)
+    pos = np.zeros(2)
+    pc = None
+    pq = None
+    ndeg = 0
+
+    def is_cmd(t):
+        return len(t) == 1 and t.isalpha()
+
+    def num():
+        nonlocal i
+        v = float(toks[i])
+        i += 1
+        return v
+
+    def have(k):
+        if i + k > n:
+            return False
+        return all(not is_cmd(toks[j]) for j in range(i, i + k))
+
+    def new_sub():
+        nonlocal cur
+        cur = {'pts': [], 'closed': False, 'anchors': 0}
+        subs.append(cur)
+        return cur
+
+    def ensure():
+        return cur if cur is not None else new_sub()
+
+    while i < n:
+        t = toks[i]
+        if is_cmd(t):
+            cmd = t.upper()
+            rel = t.islower()
+            i += 1
+            if cmd == 'Z':
+                if cur is not None and cur['pts']:
+                    cur['closed'] = True
+                    pos = cur['pts'][0].copy()
+                cur = None
+                pc = None
+                pq = None
+                cmd = None
+                continue
+            if cmd == 'M':
+                first_move = True
+            if cmd not in 'MLHVCSQTA':
+                cmd = None
+                continue
+        if cmd is None:
+            i += 1  # stray number
+            continue
+        eff = 'L' if (cmd == 'M' and not first_move) else cmd
+        if eff == 'M':
+            if not have(2):
+                cmd = None
+                continue
+            x, y = num(), num()
+            p = pos + np.array([x, y]) if rel else np.array([x, y], float)
+            new_sub()
+            cur['pts'].append(p)
+            cur['anchors'] += 1
+            pos = p.copy()
+            first_move = False
+            pc = None
+            pq = None
+        elif eff == 'L':
+            if not have(2):
+                cmd = None
+                continue
+            x, y = num(), num()
+            p = pos + np.array([x, y]) if rel else np.array([x, y], float)
+            c = ensure()
+            c['pts'].append(p)
+            c['anchors'] += 1
+            pos = p.copy()
+            pc = None
+            pq = None
+        elif eff == 'H':
+            if not have(1):
+                cmd = None
+                continue
+            x = num()
+            p = np.array([pos[0] + x if rel else x, pos[1]])
+            c = ensure()
+            c['pts'].append(p)
+            c['anchors'] += 1
+            pos = p.copy()
+            pc = None
+            pq = None
+        elif eff == 'V':
+            if not have(1):
+                cmd = None
+                continue
+            y = num()
+            p = np.array([pos[0], pos[1] + y if rel else y])
+            c = ensure()
+            c['pts'].append(p)
+            c['anchors'] += 1
+            pos = p.copy()
+            pc = None
+            pq = None
+        elif eff in ('C', 'S'):
+            need = 6 if eff == 'C' else 4
+            if not have(need):
+                cmd = None
+                continue
+            if eff == 'C':
+                x1, y1 = num(), num()
+                p1 = pos + np.array([x1, y1]) if rel else np.array([x1, y1], float)
+            else:
+                p1 = 2 * pos - pc if pc is not None else pos.copy()
+            x2, y2 = num(), num()
+            x, y = num(), num()
+            p2 = pos + np.array([x2, y2]) if rel else np.array([x2, y2], float)
+            p = pos + np.array([x, y]) if rel else np.array([x, y], float)
+            c = ensure()
+            if not c['pts']:
+                c['pts'].append(pos.copy())
+            c['pts'].extend(_cubic_flat(pos, p1, p2, p, tol))
+            c['anchors'] += 1
+            pc = p2.copy()
+            pq = None
+            pos = p.copy()
+        elif eff in ('Q', 'T'):
+            if eff == 'Q':
+                if not have(4):
+                    cmd = None
+                    continue
+                x1, y1 = num(), num()
+                q1 = pos + np.array([x1, y1]) if rel else np.array([x1, y1], float)
+            else:
+                if not have(2):
+                    cmd = None
+                    continue
+                q1 = 2 * pos - pq if pq is not None else pos.copy()
+            x, y = num(), num()
+            p = pos + np.array([x, y]) if rel else np.array([x, y], float)
+            c1 = pos + (2.0 / 3.0) * (q1 - pos)
+            c2 = p + (2.0 / 3.0) * (q1 - p)
+            c = ensure()
+            if not c['pts']:
+                c['pts'].append(pos.copy())
+            c['pts'].extend(_cubic_flat(pos, c1, c2, p, tol))
+            c['anchors'] += 1
+            pq = q1.copy()
+            pc = None
+            pos = p.copy()
+        elif eff == 'A':
+            if not have(7):
+                cmd = None
+                continue
+            rx, ry, rot = num(), num(), num()
+            laf, saf = num(), num()
+            x, y = num(), num()
+            p = pos + np.array([x, y]) if rel else np.array([x, y], float)
+            c = ensure()
+            if not c['pts']:
+                c['pts'].append(pos.copy())
+            c['pts'].extend(_arc_points(pos, rx, ry, rot, laf, saf, p, tol))
+            c['anchors'] += 1
+            pc = None
+            pq = None
+            pos = p.copy()
+        else:
+            cmd = None
+
+    out = []
+    for s in subs:
+        if len(s['pts']) >= 2:
+            s['pts'] = np.array(s['pts'], float)
+            out.append(s)
+        else:
+            ndeg += 1
+    return out, ndeg
+
+
+def _shape_subpaths(el):
+    t = _local(el.tag)
+    a = el.attrib
+    if t == 'rect':
+        x = _parse_len(a.get('x'))
+        y = _parse_len(a.get('y'))
+        w = _parse_len(a.get('width'))
+        h = _parse_len(a.get('height'))
+        if w <= 0 or h <= 0:
+            return []
+        rx = _parse_len(a.get('rx'))
+        ry = _parse_len(a.get('ry'))
+        if a.get('rx') is not None and a.get('ry') is None:
+            ry = rx
+        if a.get('ry') is not None and a.get('rx') is None:
+            rx = ry
+        rx, ry = min(rx, w / 2), min(ry, h / 2)
+        if rx <= 0 and ry <= 0:
+            pts = np.array([[x, y], [x + w, y], [x + w, y + h], [x, y + h]], float)
+            return [{'pts': pts, 'closed': True, 'anchors': 4}]
+        pts = []
+        for cx, cy, a0, a1 in ((x + w - rx, y + ry, -90, 0),
+                              (x + w - rx, y + h - ry, 0, 90),
+                              (x + rx, y + h - ry, 90, 180),
+                              (x + rx, y + ry, 180, 270)):
+            for k in range(7):
+                th = math.radians(a0 + (a1 - a0) * k / 6)
+                pts.append((cx + rx * math.cos(th), cy + ry * math.sin(th)))
+        return [{'pts': np.array(pts, float), 'closed': True, 'anchors': 4}]
+    if t == 'circle':
+        cx = _parse_len(a.get('cx'))
+        cy = _parse_len(a.get('cy'))
+        r = _parse_len(a.get('r'))
+        if r <= 0:
+            return []
+        th = np.linspace(0, 2 * math.pi, 49)[:-1]
+        return [{'pts': np.column_stack([cx + r * np.cos(th),
+                                         cy + r * np.sin(th)]),
+                 'closed': True, 'anchors': 4}]
+    if t == 'ellipse':
+        cx = _parse_len(a.get('cx'))
+        cy = _parse_len(a.get('cy'))
+        rx = _parse_len(a.get('rx'))
+        ry = _parse_len(a.get('ry'))
+        if rx <= 0 or ry <= 0:
+            return []
+        th = np.linspace(0, 2 * math.pi, 49)[:-1]
+        return [{'pts': np.column_stack([cx + rx * np.cos(th),
+                                         cy + ry * np.sin(th)]),
+                 'closed': True, 'anchors': 4}]
+    if t in ('polygon', 'polyline'):
+        nums = [float(x) for x in NUM.findall(a.get('points', ''))]
+        if len(nums) < 4:
+            return []
+        pts = np.array(nums, float).reshape(-1, 2)
+        if len(pts) < 2:
+            return []
+        return [{'pts': pts, 'closed': (t == 'polygon'), 'anchors': len(pts)}]
+    if t == 'line':
+        x1 = _parse_len(a.get('x1'))
+        y1 = _parse_len(a.get('y1'))
+        x2 = _parse_len(a.get('x2'))
+        y2 = _parse_len(a.get('y2'))
+        return [{'pts': np.array([[x1, y1], [x2, y2]], float),
+                 'closed': False, 'anchors': 2}]
+    return []
+
+
+def _parse_style(s):
+    out = {}
+    for part in (s or '').split(';'):
+        if ':' in part:
+            k, v = part.split(':', 1)
+            out[k.strip().lower()] = v.strip()
+    return out
+
+
+def _own_style(attrib):
+    st = _parse_style(attrib.get('style'))
+    out = {}
+    for k in INHERIT_KEYS:
+        if k in attrib:
+            out[k] = attrib[k]
+        elif k in st:
+            out[k] = st[k]
+    return out
+
+
+def _walk(el, M_parent, inh, art, tol, skip, el_counter):
+    for child in list(el):
+        tag = _local(child.tag)
+        M_here = M_parent @ parse_transform(child.attrib.get('transform'))
+        child_inh = dict(inh)
+        child_inh.update(_own_style(child.attrib))
+        if tag in GEOM_TAGS and not skip:
+            if tag == 'path':
+                subs, ndeg = _parse_path_d(child.attrib.get('d', ''), tol)
+            else:
+                subs, ndeg = _shape_subpaths(child), 0
+            art['stats']['degenerate'] = art['stats'].get('degenerate', 0) + ndeg
+            if not subs:
+                continue
+            el_idx = el_counter[0]
+            el_counter[0] += 1
+            for si, s in enumerate(subs):
+                pts_w = apply_mat(M_here, s['pts'])
+                art['subpaths'].append({
+                    'pts': pts_w,
+                    'closed': s['closed'],
+                    'anchors': s['anchors'],
+                    'fill': child_inh.get('fill', 'black'),
+                    'stroke': child_inh.get('stroke', 'none'),
+                    'stroke_width': child_inh.get('stroke-width', '1'),
+                    'fill_rule': child_inh.get('fill-rule', 'nonzero'),
+                    'opacity': child_inh.get('opacity', '1'),
+                    'fill_opacity': child_inh.get('fill-opacity', '1'),
+                    'stroke_opacity': child_inh.get('stroke-opacity', '1'),
+                    'linejoin': child_inh.get('stroke-linejoin', ''),
+                    'el': child,
+                    'el_idx': el_idx,
+                    'sub_idx': si,
+                    'n_subs': len(subs),
+                    'M_exp': M_parent.copy(),  # ancestors only; own transform baked+ dropped
+                    'tag': tag,
+                    'is_shape': tag != 'path',
+                })
+        else:
+            if tag == 'text':
+                art['stats']['n_text'] += 1
+            elif tag == 'image':
+                art['stats']['n_image'] += 1
+            elif tag in ('linearGradient', 'radialGradient'):
+                art['stats']['n_gradient'] += 1
+            elif tag == 'filter':
+                art['stats']['n_filter'] += 1
+            elif tag == 'clipPath':
+                art['stats']['n_clip'] += 1
+            elif tag == 'style':
+                art['stats']['n_style'] += 1
+            elif tag == 'use':
+                art['stats']['n_use'] += 1
+            if len(child):
+                _walk(child, M_here, child_inh, art, tol,
+                      skip or tag in SKIP_GEOM_IN, el_counter)
+
+
+def parse_svg(text):
+    """Parse SVG text into an artwork dict. Raises ValueError on bad input."""
+    if text is None:
+        raise ValueError('empty file')
+    if '<!ENTITY' in text:
+        raise ValueError('SVG with entities is not accepted')
+    data = text.encode('utf-8') if isinstance(text, str) else bytes(text)
+    if len(data) > 12 * 1024 * 1024:
+        raise ValueError('file too large (>12 MB)')
+    try:
+        root = ET.fromstring(data)
+    except ET.ParseError as e:
+        raise ValueError('not valid SVG/XML: %s' % e)
+    if _local(root.tag) != 'svg':
+        raise ValueError('root element is not <svg>')
+    a = root.attrib
+    vb = None
+    if a.get('viewBox'):
+        nums = NUM.findall(a['viewBox'])
+        if len(nums) == 4:
+            try:
+                vb = tuple(float(x) for x in nums)
+            except ValueError:
+                vb = None
+    W = _parse_len(a.get('width'), 0) or (vb[2] if vb else 300.0)
+    H = _parse_len(a.get('height'), 0) or (vb[3] if vb else 300.0)
+    if vb is None:
+        vb = (0.0, 0.0, float(W), float(H))
+    if vb[2] <= 0 or vb[3] <= 0:
+        raise ValueError('invalid viewBox size')
+    tol = min(0.5, max(0.02, max(vb[2], vb[3]) / 2000.0))
+    art = {'root': root, 'W': float(W), 'H': float(H), 'vb': vb,
+           'flat_tol': tol, 'subpaths': [], 'raw_len': len(data),
+           'stats': {'n_text': 0, 'n_image': 0, 'n_filter': 0,
+                     'n_gradient': 0, 'n_clip': 0, 'n_use': 0,
+                     'n_style': 0, 'degenerate': 0}}
+    _walk(root, np.eye(3), {}, art, tol, False, [0])
+    return art
+
+</script>
+<script type="text/x-python" id="emb-core-geometry.py">
+"""Numeric geometry helpers: resample, denoise, corners, Bezier fit, gates."""
+import math
+
+import numpy as np
+from scipy import ndimage
+from scipy.spatial import cKDTree
+
+
+def seg_lengths(pts, closed):
+    d = np.diff(np.asarray(pts, float), axis=0)
+    L = np.hypot(d[:, 0], d[:, 1])
+    if closed and len(pts) > 1:
+        p = np.asarray(pts, float)
+        L = np.append(L, float(np.hypot(*(p[0] - p[-1]))))
+    return L
+
+
+def poly_len(pts, closed):
+    return float(seg_lengths(pts, closed).sum())
+
+
+def bbox_diag(pts):
+    p = np.asarray(pts, float)
+    if len(p) == 0:
+        return 0.0
+    return float(np.hypot(*(p.max(axis=0) - p.min(axis=0))))
+
+
+def signed_area(pts):
+    p = np.asarray(pts, float)
+    if len(p) < 3:
+        return 0.0
+    return float(0.5 * (np.dot(p[:, 0], np.roll(p[:, 1], -1))
+                        - np.dot(p[:, 1], np.roll(p[:, 0], -1))))
+
+
+def resample(pts, step, closed=True):
+    """Uniform arc-length resample. Closed: wrap included, no dup endpoint."""
+    pts = np.asarray(pts, float)
+    if len(pts) < 2 or step <= 0:
+        return pts.copy()
+    ext = np.vstack([pts, pts[:1]]) if closed else pts
+    d = np.diff(ext, axis=0)
+    seg = np.hypot(d[:, 0], d[:, 1])
+    total = float(seg.sum())
+    if total < 1e-12:
+        return pts.copy()
+    n = max(8, int(round(total / step)))
+    s_target = np.linspace(0, total, n, endpoint=not closed)
+    cum = np.concatenate([[0.0], np.cumsum(seg)])
+    idx = np.searchsorted(cum, s_target, side='right') - 1
+    idx = np.clip(idx, 0, len(seg) - 1)
+    t = (s_target - cum[idx]) / np.maximum(seg[idx], 1e-12)
+    return ext[idx] + (ext[idx + 1] - ext[idx]) * t[:, None]
+
+
+def smooth(pts, sigma, closed=True):
+    if sigma is None or sigma < 0.35:
+        return np.asarray(pts, float).copy()
+    return ndimage.gaussian_filter1d(np.asarray(pts, float), sigma, axis=0,
+                                     mode='wrap' if closed else 'nearest')
+
+
+def turn_angles(pts, k=1, closed=True):
+    """Signed turn angle (degrees) at each point using +-k neighbours."""
+    p = np.asarray(pts, float)
+    n = len(p)
+    if n < 3:
+        return np.zeros(n)
+    if closed:
+        ii = np.arange(n)
+        a = p[(ii - k) % n]
+        c = p[(ii + k) % n]
+    else:
+        ii = np.arange(n)
+        a = p[np.clip(ii - k, 0, n - 1)]
+        c = p[np.clip(ii + k, 0, n - 1)]
+    v1 = p - a
+    v2 = c - p
+    cross = v1[:, 0] * v2[:, 1] - v1[:, 1] * v2[:, 0]
+    dot = v1[:, 0] * v2[:, 0] + v1[:, 1] * v2[:, 1]
+    return np.degrees(np.arctan2(cross, dot))
+
+
+def detect_corners(pts, step, window_len, sharp_deg, closed, presmooth=True,
+                   med_spacing=None):
+    """Corner mask via physical-length window on a pre-smoothed curve.
+
+    Returns (mask, turns, magnitudes, k). Classification happens only after
+    the pre-smooth, otherwise noise looks like corners. The pre-smooth
+    scales with the noise wavelength (median vertex spacing) so dense
+    jitter can never fake dozens of corners.
+    """
+    p = np.asarray(pts, float)
+    n = len(p)
+    if n < 8:
+        return np.zeros(n, bool), np.zeros(n), np.zeros(n), 1
+    k = max(2, int(round(window_len / max(step, 1e-9))))
+    k = min(k, max(2, n // 8 if closed else n // 4))
+    pre_px = min(window_len * 0.75,
+                 max(window_len / 4.0, (med_spacing or 0.0) * 0.75))
+    work = (smooth(p, pre_px / max(step, 1e-9), closed) if presmooth else p)
+    turns = turn_angles(work, k, closed)
+    mag = np.abs(turns)
+    mask = np.zeros(n, bool)
+    cand = np.where(mag >= sharp_deg)[0]
+    if closed:
+        for idx in cand:
+            window = np.take(mag, range(idx - k, idx + k + 1), mode='wrap')
+            if mag[idx] >= window.max() - 1e-9:
+                mask[idx] = True
+    else:
+        for idx in cand:
+            lo, hi = max(0, idx - k), min(n, idx + k + 1)
+            if mag[idx] >= mag[lo:hi].max() - 1e-9:
+                mask[idx] = True
+    return mask, turns, mag, k
+
+
+def detect_regular_features(pts, step, closed):
+    """Pin repeated motifs (gear teeth, serrations, stitches, star tips).
+
+    High-turn points with PERIODIC spacing are features by definition, even
+    when a fixed window would miss them. Random noise never forms regular
+    chains, so this only ever fires on real repeated structure.
+    Returns sorted indices (refined to local turn maxima).
+    """
+    p = np.asarray(pts, float)
+    n = len(p)
+    if n < 32:
+        return []
+    t = np.abs(turn_angles(p, 2, closed))
+    cand = [int(i) for i in np.where(t > 20.0)[0]]
+    if len(cand) < 6:
+        return []
+    gaps = np.diff(np.array(cand, dtype=float))
+    if closed:
+        gaps = np.append(gaps, cand[0] + n - cand[-1])
+    med = float(np.median(gaps)) if len(gaps) else 0.0
+    if med < 3:
+        return []
+    feats = []
+    run = [cand[0]]
+    order = list(range(len(cand))) if not closed else list(range(len(cand)))
+    for gi in range(len(gaps)):
+        nxt = cand[(gi + 1) % len(cand)]
+        if abs(float(gaps[gi]) - med) <= 0.35 * med:
+            if closed or gi + 1 < len(cand):
+                run.append(nxt)
+            else:
+                break
+        else:
+            if len(run) >= 6:
+                feats.extend(run)
+            run = [nxt]
+            if not closed and gi + 1 >= len(cand):
+                break
+    if len(run) >= 6:
+        feats.extend(run)
+    if not feats:
+        return []
+    r = max(1, int(med // 4))
+    out = []
+    for f in feats:
+        if closed:
+            window = np.take(t, range(f - r, f + r + 1), mode='wrap')
+            out.append((f - r + int(np.argmax(window))) % n)
+        else:
+            lo, hi = max(0, f - r), min(n, f + r + 1)
+            out.append(lo + int(np.argmax(t[lo:hi])))
+    return sorted(set(out))
+
+
+def _fit_line(P):
+    c = P.mean(axis=0)
+    try:
+        _, _, Vt = np.linalg.svd(P - c, full_matrices=False)
+        return c, Vt[0]
+    except np.linalg.LinAlgError:
+        d = P[-1] - P[0]
+        n = float(np.hypot(*d))
+        return c, (d / n if n > 1e-12 else np.array([1.0, 0.0]))
+
+
+def _intersect(l1, l2):
+    p, d = l1
+    q, e = l2
+    A = np.column_stack([d, -e])
+    if abs(np.linalg.det(A)) < 1e-9:
+        return None
+    try:
+        t = np.linalg.solve(A, q - p)
+    except np.linalg.LinAlgError:
+        return None
+    return p + d * t[0]
+
+
+def rebuild_corners(smooth_pts, corner_idx, w, step, closed, orig_pts,
+                    max_move=None):
+    """Rebuild corners as the outward intersection of the two smoothed edges.
+
+    Pinning raw corner samples would freeze a jitter band around every tip;
+    intersecting the neighbouring edges keeps tips sharp *and* clean.
+    max_move budget-caps every rebuild so corners can never blow the budget.
+    """
+    out = np.asarray(smooth_pts, float).copy()
+    orig = np.asarray(orig_pts, float)
+    n = len(out)
+    if n == 0:
+        return out
+    cap = w * step * 4
+    if max_move is not None:
+        cap = min(cap, max_move)
+    snap_tol = w * step * 0.5
+    snapped = np.zeros(n, bool)
+    pins = {}
+    for i in corner_idx:
+        if closed:
+            i1 = [(i - 2 * w + j) % n for j in range(w)]
+            i2 = [(i + w + j) % n for j in range(w)]
+        else:
+            if i - 2 * w < 0 or i + 2 * w >= n:
+                out[i] = orig[i]
+                snapped[i] = True
+                pins[i] = orig[i]
+                continue
+            i1 = list(range(i - 2 * w, i - w))
+            i2 = list(range(i + w, i + 2 * w))
+        # lines fit on the ORIGINAL flanks (noise-averaged), never on the
+        # smoothed curve: smoothing would have already dragged the corner.
+        A = orig[np.array(i1)]
+        B = orig[np.array(i2)]
+        l1, l2 = _fit_line(A), _fit_line(B)
+        P = _intersect(l1, l2)
+        if P is None or float(np.hypot(*(P - orig[i]))) > cap:
+            out[i] = orig[i]  # no trustworthy rebuild: pin original exactly
+            snapped[i] = True
+            pins[i] = orig[i]
+            continue
+        out[i] = P
+        snapped[i] = True
+        pins[i] = P
+        # snap flanks onto the rebuilt edges, extending along the feature
+        # while the original stays on the line (wide spikes need wide snaps;
+        # curving flanks stop the extension by themselves). First-wins keeps
+        # neighbouring zones from overlapping.
+        for side, line in ((-1, l1), (1, l2)):
+            pt, dr = line
+            misses = 0
+            for j in range(1, 8 * w + 1):
+                idx = (i + side * j) % n if closed else i + side * j
+                if not closed and (idx < 0 or idx >= n):
+                    break
+                if snapped[idx]:
+                    break
+                o = orig[idx]
+                if float(np.hypot(*(o - (pt + dr * float(np.dot(o - pt, dr)))))) > snap_tol:
+                    misses += 1  # isolated jitter crossings don't end the zone
+                    if misses >= 3:
+                        break
+                    continue
+                misses = 0
+                v = out[idx] - pt
+                out[idx] = pt + dr * float(np.dot(v, dr))
+                snapped[idx] = True
+    # dissolve 1-sample steps left by skipped violators (collinear snapped
+    # runs are untouched by this); corners are re-pinned exactly after.
+    out = smooth(out, 1.0, closed)
+    for i, P in pins.items():
+        out[i] = P
+    return out
+
+
+def _poly_tangent(q, at_start):
+    """Unit tangent from a least-squares quadratic fit (osculating parabola).
+
+    A plain chord gives the MIDPOINT tangent (~2 deg off at the endpoint on
+    gentle arcs); the parabola's derivative AT the endpoint is ~10x more
+    accurate, which is what long cubic windows need.
+    """
+    q = np.asarray(q, float)
+    m = len(q)
+    if m < 3:
+        d = q[-1] - q[0]
+        n = float(np.hypot(*d))
+        return d / n if n > 1e-12 else np.array([1.0, 0.0])
+    d = q[-1] - q[0]
+    L = float(np.hypot(*d))
+    if L < 1e-12:
+        return np.array([1.0, 0.0])
+    ux, uy = d / L
+    xr = (q[:, 0] - q[0, 0]) * ux + (q[:, 1] - q[0, 1]) * uy
+    yr = -(q[:, 0] - q[0, 0]) * uy + (q[:, 1] - q[0, 1]) * ux
+    A = np.column_stack([xr * xr, xr, np.ones(m)])
+    try:
+        (a, b, _), *_ = np.linalg.lstsq(A, yr, rcond=None)
+    except (np.linalg.LinAlgError, ValueError):
+        return np.array([ux, uy])
+    x0 = 0.0 if at_start else float(xr[-1])
+    slope = 2 * a * x0 + b
+    nrm = math.hypot(1.0, slope)
+    return np.array([(ux - slope * uy) / nrm, (uy + slope * ux) / nrm])
+
+
+def fit_single_cubic(pts):
+    """Least-squares cubic with endpoint tangents. Returns ((P0..P3), err, imax)."""
+    pts = np.asarray(pts, float)
+    n = len(pts)
+    P0, P3 = pts[0].copy(), pts[-1].copy()
+    chord = float(np.hypot(*(P3 - P0)))
+    if n >= 6:
+        m = max(4, min(12, n // 4))
+        t0 = _poly_tangent(pts[:m], True)
+        t1 = -_poly_tangent(pts[-m:], False)  # backward-pointing
+    else:
+        m = max(2, n // 4)
+        t0 = pts[m] - pts[0]
+        n0 = float(np.hypot(*t0))
+        t0 = t0 / n0 if n0 > 1e-12 else np.array([1.0, 0.0])
+        t1 = pts[n - 1 - m] - pts[-1]
+        n1 = float(np.hypot(*t1))
+        t1 = t1 / n1 if n1 > 1e-12 else np.array([-1.0, 0.0])
+    if len(pts) >= 2:
+        d = np.diff(pts, axis=0)
+        seg = np.hypot(d[:, 0], d[:, 1])
+        tot = float(seg.sum())
+        u = (np.concatenate([[0.0], np.cumsum(seg)]) / tot if tot > 1e-12
+             else np.linspace(0, 1, len(pts)))
+    else:
+        u = np.array([0.0])
+    B0 = (1 - u) ** 3
+    B1 = 3 * u * (1 - u) ** 2
+    B2 = 3 * u * u * (1 - u)
+    B3 = u ** 3
+    A1 = t0[None, :] * B1[:, None]
+    A2 = t1[None, :] * B2[:, None]
+    # residual vs the endpoints' full Bernstein weight (Schneider):
+    # fitted = P0*(B0+B1) + P3*(B2+B3) + a1*A1 + a2*A2
+    tmp = pts - (P0[None, :] * (B0 + B1)[:, None]
+                 + P3[None, :] * (B2 + B3)[:, None])
+    C00 = float((A1 * A1).sum())
+    C01 = float((A1 * A2).sum())
+    C11 = float((A2 * A2).sum())
+    X0 = float((A1 * tmp).sum())
+    X1 = float((A2 * tmp).sum())
+    det = C00 * C11 - C01 * C01
+    if abs(det) > 1e-9 * (abs(C00 * C11) + 1e-18):
+        a1 = (X0 * C11 - X1 * C01) / det
+        a2 = (C00 * X1 - C01 * X0) / det
+    else:
+        a1 = a2 = chord / 3.0
+    # handle-length clamp: no giant handles, no overshoot loops
+    cap = max(chord * 1.2, 1e-9)
+    a1 = float(min(max(a1, 0.0), cap))
+    a2 = float(min(max(a2, 0.0), cap))
+    P1 = P0 + t0 * a1
+    P2 = P3 + t1 * a2
+    F = (B0[:, None] * P0 + B1[:, None] * P1
+         + B2[:, None] * P2 + B3[:, None] * P3)
+    err = np.hypot((F - pts)[:, 0], (F - pts)[:, 1])
+    imax = int(np.argmax(err))
+    return (P0, P1, P2, P3), float(err[imax]), imax
+
+
+def _cubic_dense_err(P0, P1, P2, P3, pts):
+    """Max distance from a finely-sampled cubic to the polyline.
+
+    Least-squares error is only measured AT data points; between samples a
+    cubic can overshoot. Dense verification closes that hole.
+    """
+    pts = np.asarray(pts, float)
+    tree = cKDTree(pts)
+    n = max(16, len(pts) * 3)
+    t = np.linspace(0, 1, n)
+    mt = 1 - t
+    Q = ((mt ** 3)[:, None] * P0 + (3 * mt * mt * t)[:, None] * P1
+         + (3 * mt * t * t)[:, None] * P2 + (t ** 3)[:, None] * P3)
+    d, _ = tree.query(Q)
+    return float(d.max())
+
+
+def _line_dev(pts):
+    pts = np.asarray(pts, float)
+    if len(pts) <= 2:
+        return 0.0
+    chord = pts[-1] - pts[0]
+    L = float(np.hypot(*chord))
+    if L < 1e-12:
+        return 0.0
+    dev = np.abs((pts[:, 0] - pts[0, 0]) * chord[1]
+                 - (pts[:, 1] - pts[0, 1]) * chord[0]) / L
+    return float(dev.max())
+
+
+def _cubic_fit_err(pts, tol):
+    """One cubic fit -> (seg, err), dense-verified when data-err passes."""
+    pts = np.asarray(pts, float)
+    if len(pts) <= 2:
+        return ('L', pts[-1].copy()), 0.0
+    (_, P1, P2, _), derr, _ = fit_single_cubic(pts)
+    seg = ('C', P1, P2, pts[-1].copy())
+    if derr > tol:
+        return seg, derr
+    cerr = _cubic_dense_err(pts[0], P1, P2, pts[-1], pts)
+    return seg, max(derr, cerr)
+
+
+def fit_span(pts, tol):
+    """Greedy error-bounded fit of an open point span -> segment list.
+
+    At each step the maximal line window AND the maximal cubic window are
+    found (binary search) and whichever reaches farther wins: straights
+    collapse to one L, arcs to a few C's, anchors land at natural
+    transitions. Minimal segments, no micro-kink confetti.
+    """
+    pts = np.asarray(pts, float)
+    n = len(pts)
+    if n <= 2:
+        return [('L', pts[-1].copy())] if n == 2 else []
+    out = []
+    i = 0
+    while i < n - 1:
+        # full-span check first: window error is NOT monotonic in length
+        # (the chord refits every window), so binary search alone can miss
+        # a passing full span; clean runs then collapse in one step.
+        if _line_dev(pts[i:]) <= tol:
+            bestL = n - 1
+        else:
+            bestL = i + 1
+            lo, hi = i + 2, n - 1
+            while lo <= hi:
+                mid = (lo + hi) // 2
+                if _line_dev(pts[i:mid + 1]) <= tol:
+                    bestL = mid
+                    lo = mid + 1
+                else:
+                    hi = mid - 1
+        seg_full, err_full = _cubic_fit_err(pts[i:], tol)
+        if err_full <= tol:
+            bestC, bestCseg = n - 1, seg_full
+        else:
+            bestC, bestCseg = i + 1, ('L', pts[i + 1].copy())
+            lo, hi = i + 2, n - 1
+            while lo <= hi:
+                mid = (lo + hi) // 2
+                seg, err = _cubic_fit_err(pts[i:mid + 1], tol)
+                if err <= tol:
+                    bestC, bestCseg = mid, seg
+                    lo = mid + 1
+                else:
+                    hi = mid - 1
+        if bestL >= bestC:
+            out.append(('L', pts[bestL].copy()))
+            i = bestL
+        else:
+            out.append(bestCseg)
+            i = bestC
+        if len(out) > n + 4:  # paranoia: never loop forever
+            break
+    return out
+
+
+def sample_segments(start, segments, step=None, per=14):
+    """Dense-sample a segment chain (for deviation gates + QA render).
+
+    With step set, samples scale with segment length so long straight runs
+    are NOT under-sampled (under-sampling here caused false guard reverts).
+    """
+    pts = [np.asarray(start, float).copy()]
+    cur = pts[0]
+    for s in segments:
+        if s[0] == 'L':
+            p = np.asarray(s[1], float)
+            seglen = float(np.hypot(*(p - cur)))
+            n = max(2, int(np.ceil(seglen / step))) if step else per
+            for t in np.linspace(0, 1, min(n, 20000) + 1)[1:]:
+                pts.append(cur + (p - cur) * t)
+            cur = p
+        else:
+            _, c1, c2, p = s
+            c1 = np.asarray(c1, float)
+            c2 = np.asarray(c2, float)
+            p = np.asarray(p, float)
+            if step:
+                approx = (float(np.hypot(*(c1 - cur)))
+                          + float(np.hypot(*(c2 - c1)))
+                          + float(np.hypot(*(p - c2))))
+                n = max(4, int(np.ceil(approx / step)))
+            else:
+                n = per
+            for t in np.linspace(0, 1, min(n, 20000) + 1)[1:]:
+                mt = 1 - t
+                pts.append((mt ** 3) * cur + 3 * mt * mt * t * c1
+                           + 3 * mt * t * t * c2 + (t ** 3) * p)
+            cur = p
+    return np.array(pts)
+
+
+def polyline_deviation(a, b):
+    """Symmetric max distance between two dense polylines."""
+    a = np.asarray(a, float)
+    b = np.asarray(b, float)
+    if len(a) == 0 or len(b) == 0:
+        return float('inf')
+    d1, _ = cKDTree(a).query(b)
+    d2, _ = cKDTree(b).query(a)
+    return float(max(d1.max(), d2.max()))
+
+
+def has_self_intersection(poly, closed=True):
+    """Proper (crossing) self-intersection test, adjacency excluded."""
+    p = np.asarray(poly, float)
+    if len(p) < 4:
+        return False
+    a = p if closed else p[:-1]
+    b = np.roll(p, -1, axis=0) if closed else p[1:]
+    n = len(a)
+    if n < 4:
+        return False
+    for i in range(n):
+        js = np.arange(i + 2, n)
+        if closed and i == 0:
+            js = js[js != (n - 1)]
+        if len(js) == 0:
+            continue
+        p1, p2 = a[i], b[i]
+        q1, q2 = a[js], b[js]
+        o1 = (p2[0] - p1[0]) * (q1[:, 1] - p1[1]) - (p2[1] - p1[1]) * (q1[:, 0] - p1[0])
+        o2 = (p2[0] - p1[0]) * (q2[:, 1] - p1[1]) - (p2[1] - p1[1]) * (q2[:, 0] - p1[0])
+        o3 = (q2[:, 0] - q1[:, 0]) * (p1[1] - q1[:, 1]) - (q2[:, 1] - q1[:, 1]) * (p1[0] - q1[:, 0])
+        o4 = (q2[:, 0] - q1[:, 0]) * (p2[1] - q1[:, 1]) - (q2[:, 1] - q1[:, 1]) * (p2[0] - q1[:, 0])
+        if bool(np.any((o1 * o2 < 0) & (o3 * o4 < 0))):
+            return True
+    return False
+
+
+def guard_candidate(orig_dense, cand_dense, budget, closed=True, area_orig=None):
+    """Accept-or-rollback gate. Returns (ok, reason, deviation)."""
+    dev = polyline_deviation(orig_dense, cand_dense)
+    if not np.isfinite(dev):
+        return False, 'empty candidate geometry', dev
+    if dev > budget:
+        return False, 'deviation %.3f over budget %.3f' % (dev, budget), dev
+    cand = np.asarray(cand_dense, float)
+    if len(cand) > 1500:
+        step = poly_len(cand, closed) / 1500.0
+        cand = resample(cand, step, closed)
+    if has_self_intersection(cand, closed):
+        return False, 'would introduce a self-intersection', dev
+    if area_orig is not None and abs(area_orig) > 0:
+        ac = signed_area(cand_dense if len(cand_dense) >= 3 else cand)
+        if abs(ac) < 1e-9 and abs(area_orig) > 0:
+            return False, 'candidate collapsed (zero area)', dev
+        if (ac > 0) != (area_orig > 0):
+            return False, 'winding direction flipped', dev
+        ratio = abs(ac / area_orig)
+        if ratio < 0.5 or ratio > 2.0:
+            return False, 'area changed too much (x%.2f)' % ratio, dev
+    return True, 'ok', dev
+
+
+def jitter_stats(pts, closed):
+    """(spacing-relative jitter, absolute jitter in px)."""
+    p = np.asarray(pts, float)
+    if len(p) < 8:
+        return 0.0, 0.0
+    s = smooth(p, 1.0, closed)
+    resid = np.hypot((p - s)[:, 0], (p - s)[:, 1])
+    seg = seg_lengths(p, closed)
+    seg = seg[seg > 1e-12]
+    sp = float(np.median(seg)) if len(seg) else 1.0
+    med = float(np.median(resid))
+    return med / (sp + 1e-12), med
+
+
+def estimate_noise(pts, closed):
+    """Spacing-independent jitter estimate (median residual / median spacing)."""
+    return jitter_stats(pts, closed)[0]
+
+</script>
+<script type="text/x-python" id="emb-core-clean.py">
+"""Topology-safe, shape-preserving smoothing pipeline.
+
+Pipeline per subpath:
+  cleanup (dup / near-dup / collinear / zigzag / spike)
+  -> uniform resample -> corner classify -> denoise (budget = measured displacement)
+  -> corner rebuild (outward intersection) -> error-bounded cubic fit
+  -> guard (deviation + self-intersection + winding) -> accept or ROLLBACK.
+
+Decision hierarchy: topology > silhouette fidelity > corners > curvature >
+details > node count > file size. Node count is never #1.
+"""
+import numpy as np
+from scipy.spatial import cKDTree
+
+from .geometry import (
+    bbox_diag, detect_corners, estimate_noise, fit_span, guard_candidate,
+    poly_len, polyline_deviation, rebuild_corners, resample, sample_segments,
+    seg_lengths, signed_area, smooth, turn_angles, jitter_stats,
+    detect_regular_features,
+)
+
+PRESETS = {
+    'clean': {'smoothness': 15, 'fidelity': 92},
+    'icon': {'smoothness': 25, 'fidelity': 90},
+    'illustration': {'smoothness': 45, 'fidelity': 75},
+    'traced': {'smoothness': 65, 'fidelity': 70},
+    'heavy': {'smoothness': 85, 'fidelity': 55},
+}
+
+AUTO_FIDELITY = 80
+
+
+def auto_smoothness(subpaths, D):
+    stats = [jitter_stats(sp['pts'], sp['closed']) for sp in subpaths
+             if len(sp['pts']) >= 16]
+    if not stats:
+        return 45, 0.0
+    med_rel = float(np.median([s[0] for s in stats]))
+    med_abs = float(np.median([s[1] for s in stats]))
+    s_rel = 15.0 + 40.0 * med_rel
+    # absolute term: jitter visible against a ~0.1%-of-artwork just-noticeable scale
+    s_abs = 15.0 + 25.0 * (med_abs / max(D * 0.001, 1e-9))
+    s = min(90.0, max(10.0, max(s_rel, s_abs)))
+    return s, med_rel
+
+
+def smoothness_label(s):
+    if s < 20:
+        return 'clean'
+    if s < 35:
+        return 'icon'
+    if s < 55:
+        return 'illustration'
+    if s < 75:
+        return 'traced'
+    return 'heavy'
+
+
+# ------------------------------------------------------------- cleanup stages
+
+def _remove_duplicates(pts, closed):
+    """Exact duplicate points (same coordinate twice)."""
+    p = np.asarray(pts, float)
+    if len(p) < 2:
+        return p, 0
+    keep = np.ones(len(p), bool)
+    keep[1:] = np.hypot(np.diff(p[:, 0]), np.diff(p[:, 1])) > 1e-12
+    if closed and len(p) > 2 and keep.sum() > 2:
+        first = np.where(keep)[0]
+        if np.hypot(*(p[first[-1]] - p[first[0]])) <= 1e-12:
+            keep[first[-1]] = False
+    return p[keep], int(len(p) - keep.sum())
+
+
+def _merge_near_duplicates(pts, closed, thr):
+    """Near-duplicate merge; threshold scales with artwork size, never fixed px."""
+    p = np.asarray(pts, float)
+    if len(p) < 2 or thr <= 0:
+        return p, 0
+    kept = [p[0]]
+    for q in p[1:]:
+        if float(np.hypot(*(q - kept[-1]))) >= thr:
+            kept.append(q)
+    out = np.array(kept)
+    if closed and len(out) > 2 and float(np.hypot(*(out[-1] - out[0]))) < thr:
+        out = out[:-1]
+    return out, int(len(p) - len(out))
+
+
+def _remove_collinear(pts, closed, max_deg=1.5, passes=2):
+    """Drop middle point when three consecutive points are ~one straight line."""
+    p = np.asarray(pts, float)
+    removed = 0
+    for _ in range(passes):
+        n = len(p)
+        if n < (4 if closed else 3):
+            break
+        t = np.abs(turn_angles(p, 1, closed))
+        keep = t >= max_deg
+        if not closed:
+            keep[0] = True
+            keep[-1] = True
+        if keep.all() or keep.sum() < 3:
+            break
+        removed += int(n - keep.sum())
+        p = p[keep]
+    return p, removed
+
+
+def _remove_zigzag(pts, closed, D, amp_frac=0.0022, len_frac=0.0035):
+    """Micro-zigzag runs (small amplitude + high frequency) -> straight chord.
+
+    Only runs whose perpendicular amplitude is visually insignificant collapse;
+    anything bigger (feather/fur/serration scale) is left alone.
+    """
+    p = np.asarray(pts, float)
+    n = len(p)
+    if n < 8:
+        return p, 0
+    t = turn_angles(p, 1, closed)
+    if closed:
+        nxt = np.roll(p, -1, axis=0)
+        prv = np.roll(p, 1, axis=0)
+    else:
+        nxt = np.vstack([p[1:], p[-1]])
+        prv = np.vstack([p[0], p[:-1]])
+    sp = np.minimum(np.hypot((nxt - p)[:, 0], (nxt - p)[:, 1]),
+                    np.hypot((p - prv)[:, 0], (p - prv)[:, 1]))
+    if not closed:
+        sp[0] = sp[-1] = np.inf
+    qual = (np.abs(t) >= 4.0) & (np.abs(t) <= 70.0) & (sp <= D * len_frac)
+    drop = np.zeros(n, bool)
+    removed = 0
+    i = 0
+    while i < n:
+        if drop[i] or not qual[i]:
+            i += 1
+            continue
+        run = [i]
+        j = i
+        while len(run) < n:
+            k = (j + 1) % n if closed else j + 1
+            if (not closed and k >= n) or k == i or drop[k] or not qual[k]:
+                break
+            if np.sign(t[k]) == np.sign(t[j]) and len(run) >= 1 and k != i:
+                # allow one same-sign step, then the run must alternate
+                pass
+            # strict alternation required from the 3rd point on
+            if len(run) >= 2 and np.sign(t[k]) == np.sign(t[run[-1]]):
+                # check it is not just noise: break the run
+                if np.sign(t[k]) == np.sign(t[run[-2]]):
+                    break
+            run.append(k)
+            j = k
+        if len(run) >= 4:
+            a, b = p[run[0]], p[run[-1]]
+            chord = float(np.hypot(*(b - a)))
+            if chord > 1e-12 and chord >= 2 * D * len_frac:
+                q = p[np.array(run)]
+                amp = float(np.abs((q[:, 0] - a[0]) * (b[1] - a[1])
+                                     - (q[:, 1] - a[1]) * (b[0] - a[0])).max() / chord)
+                if amp < D * amp_frac:
+                    for r in run[1:-1]:
+                        drop[r] = True
+                    removed += len(run) - 2
+                    i = run[-1]
+        i += 1
+    if removed and (~drop).sum() >= 3:
+        return p[~drop], removed
+    return p, 0
+
+
+def _remove_spikes(pts, closed, D, base_frac=0.008, h_frac=0.030, passes=3):
+    """Accidental spikes removed; raster-reference-checked spikes preserved.
+
+    A protrusion is only removed when it is narrow + tall AND a lightly
+    smoothed reference of the same polyline does not protrude there
+    (intentional beaks/horns/thorns survive).
+    """
+    w = np.asarray(pts, float).copy()
+    removed = 0
+    for _ in range(passes):
+        n = len(w)
+        if n < 8:
+            break
+        ref = smooth(w, 1.0, closed)
+        t = turn_angles(w, 1, closed)
+        cand = np.where(np.abs(t) > 55.0)[0]
+        drop = []
+        for i in cand:
+            if not closed and (i == 0 or i == n - 1):
+                continue
+            ip = (i - 1) % n
+            iq = (i + 1) % n
+            a, b, c = w[ip], w[i], w[iq]
+            base = float(np.hypot(*(c - a)))
+            if base < 1e-9 or base > D * base_frac:
+                continue
+            h = abs((b[0] - a[0]) * (c[1] - a[1])
+                   - (b[1] - a[1]) * (c[0] - a[0])) / base
+            if h < base * 2.0 or h > D * h_frac:
+                continue
+            ar, br, cr = ref[ip], ref[i], ref[iq]
+            baser = float(np.hypot(*(cr - ar)))
+            hr = (abs((br[0] - ar[0]) * (cr[1] - ar[1])
+                     - (br[1] - ar[1]) * (cr[0] - ar[0])) / baser
+                  if baser > 1e-9 else 0.0)
+            if hr > 0.5 * h:
+                continue  # intentional: the reference protrudes too
+            drop.append(i)
+        if not drop:
+            break
+        w = np.delete(w, drop, axis=0)
+        removed += len(drop)
+    return w, removed
+
+
+def _span_pts(a, i, j, closed):
+    n = len(a)
+    if not closed:
+        return a[i:j + 1]
+    if i == j:
+        return np.vstack([a[i:], a[:i + 1]])
+    if j > i:
+        return a[i:j + 1]
+    return np.vstack([a[i:], a[:j + 1]])
+
+
+# ------------------------------------------------------------------ pipeline
+
+def _resolve_params(subpaths, o, D):
+    preset = (o.get('preset') or 'auto').lower()
+    if preset not in PRESETS and preset != 'auto':
+        preset = 'auto'
+    s_opt = o.get('smoothness')
+    f_opt = o.get('fidelity')
+    if preset == 'auto':
+        s_auto, noise_med = auto_smoothness(subpaths, D)
+        s = float(s_opt) if s_opt is not None else s_auto
+        f = float(f_opt) if f_opt is not None else AUTO_FIDELITY
+        preset_used = 'auto->%s' % smoothness_label(s)
+    else:
+        s = float(s_opt) if s_opt is not None else PRESETS[preset]['smoothness']
+        f = float(f_opt) if f_opt is not None else PRESETS[preset]['fidelity']
+        preset_used = preset
+    s = min(100.0, max(0.0, s))
+    f = min(100.0, max(0.0, f))
+    mode = (o.get('mode') or 'safe').lower()
+    if mode not in ('safe', 'pro'):
+        mode = 'safe'
+    if mode == 'safe':
+        f = max(f, 80.0)  # SAFE MARKETPLACE CLEAN never drops fidelity
+    return {
+        'preset_used': preset_used, 'mode': mode,
+        'smoothness': s, 'fidelity': f,
+        'movement_cap': o.get('movement_cap'),
+        'noise_target': o.get('noise_target'),
+        'round_corners': bool(o.get('round_corners')) and mode == 'pro',
+        'remove_tiny': bool(o.get('remove_tiny', True)),
+        'auto_close': bool(o.get('auto_close', True)),
+        'convert_shapes': bool(o.get('convert_shapes', False)),
+    }
+
+
+def _smooth_one(sp, D, P, notes, clear_cap=None):
+    pts = np.asarray(sp['pts'], float)
+    closed = bool(sp['closed'])
+    res = {'closed': closed, 'anchors_before': int(sp['anchors']),
+           'status': 'smoothed', 'reason': 'ok', 'dev': 0.0, 'budget': 0.0,
+           'segments': [], 'start': pts[0].copy() if len(pts) else np.zeros(2),
+           'dense_orig': pts.copy(), 'dense_new': pts.copy(),
+           'removed': {}, 'corners': 0, 'rounded': 0, 'cusps': 0,
+           'jitter_before': 0.0, 'jitter_after': 0.0, 'auto_closed': False}
+    if len(pts) < 2:
+        res['status'] = 'degenerate'
+        return res
+    if len(pts) == 2 and not closed:
+        res['status'] = 'passthrough'  # a plain line: nothing to smooth
+        return res
+    if sp.get('is_shape') and not P.get('convert_shapes', False):
+        res['status'] = 'passthrough'
+        res['reason'] = 'shape kept (convert_shapes off)'
+        res['dense_orig'] = pts
+        res['dense_new'] = pts
+        return res
+    try:
+        np.linalg.inv(sp['M_exp'])
+    except np.linalg.LinAlgError:
+        res['status'] = 'passthrough'
+        res['reason'] = 'singular transform, kept verbatim'
+        return res
+
+    # start closed loops at the sharpest turn so no feature straddles the seam
+    if closed and len(pts) > 16:
+        t0 = np.abs(turn_angles(pts, 2, True))
+        pts = np.roll(pts, -int(np.argmax(t0)), axis=0)
+
+    jb_rel, jb_abs = jitter_stats(pts, closed)
+    res['jitter_before'] = jb_rel
+
+    # ---- stage A: cleanup (skipped entirely at 0% = Original) ----
+    if P['smoothness'] <= 0:
+        res['status'] = 'passthrough'
+        res['reason'] = 'smoothness 0% (Original)'
+        res['dense_orig'] = pts
+        res['dense_new'] = pts
+        return res
+    fid = P['fidelity']
+    # ---- fidelity cap: the solemn promise (never exceed, even at 100%) ----
+    # Fixed BEFORE cleanup so structural ops (spike/zigzag removal) obey the
+    # same budget as smoothing: subject change is measured against the RAW
+    # input, never against an already-altered curve.
+    if P['movement_cap'] is not None:
+        B_cap = float(P['movement_cap'])
+    else:
+        B_cap = D * (0.0005 + (1 - fid / 100.0) * 0.02)
+        if P['mode'] == 'safe':
+            B_cap = min(B_cap, D * 0.004)
+    if clear_cap is not None and clear_cap < B_cap:
+        B_cap = float(clear_cap)
+        notes.append('budget capped to %.3f u by a %.3f u neighbour gap '
+                     '(paths can never touch)' % (B_cap, clear_cap / 0.4))
+    B_cap = max(B_cap, D * 1e-4)
+    merge_tol = D * (1e-4 + (1 - fid / 100.0) * 9e-4)
+    raw = pts.copy()
+    pts, n_dup = _remove_duplicates(pts, closed)
+    pts, n_merge = _merge_near_duplicates(pts, closed, merge_tol)
+    pts, n_col = _remove_collinear(pts, closed)
+    pts_s, n_zig = _remove_zigzag(pts, closed, D)
+    pts_s, n_spk = _remove_spikes(pts_s, closed, D)
+    step_c = max(poly_len(raw, closed) / 6000.0, D * 0.0008, 1e-6)
+    need = 3 if closed else 2
+    if len(pts_s) >= need and len(raw) >= need:
+        cd = polyline_deviation(resample(raw, step_c, closed),
+                                resample(pts_s, step_c, closed))
+    else:
+        cd = float('inf')
+    if cd <= B_cap:
+        pts, cleanup_dev = pts_s, cd
+    else:
+        # structural cleanup would move the subject past the budget: keep the
+        # harmless part (dups/collinear are ~zero-dev), drop the rest.
+        pts, n_zig, n_spk = pts, 0, 0
+        if len(pts) >= need:
+            cd2 = polyline_deviation(resample(raw, step_c, closed),
+                                     resample(pts, step_c, closed))
+        else:
+            cd2 = float('inf')
+        if cd2 <= B_cap:
+            cleanup_dev = cd2
+            notes.append('structural cleanup skipped (would move %.2f u > '
+                         '%.2f u budget) - subject kept' % (cd, B_cap))
+        else:
+            pts, cleanup_dev = raw.copy(), 0.0
+            n_dup = n_merge = n_col = 0
+            notes.append('cleanup skipped entirely (would move %.2f u) - '
+                         'subject kept' % cd)
+    res['removed'] = {'duplicates': n_dup + n_merge, 'collinear': n_col,
+                      'zigzag': n_zig, 'spikes': n_spk}
+    res['cleanup_dev'] = round(float(cleanup_dev), 4)
+    if len(pts) < (3 if closed else 2):
+        res['status'] = 'reverted'
+        res['reason'] = 'cleanup would erase the path'
+        res['dense_orig'] = np.asarray(sp['pts'], float)
+        res['dense_new'] = res['dense_orig']
+        return res
+
+    # ---- open path handling ----
+    if not closed and P['auto_close'] and len(pts) >= 3:
+        gap = float(np.hypot(*(pts[-1] - pts[0])))
+        if gap < D * 0.002:
+            closed = True
+            res['auto_closed'] = True
+            notes.append('auto-closed a %.3f-unit gap' % gap)
+    res['closed'] = closed
+
+    # ---- tiny/stray objects ----
+    diag = bbox_diag(pts)
+    if diag < max(D * 0.004, 0.75):
+        if P['remove_tiny']:
+            res['status'] = 'removed'
+            res['reason'] = 'tiny fragment (%.2f u)' % diag
+            res['dense_new'] = np.zeros((0, 2))
+            return res
+        res['status'] = 'passthrough'
+        res['reason'] = 'tiny object kept (remove_tiny off)'
+        res['dense_new'] = pts
+        res['dense_orig'] = pts
+        return res
+
+    # ---- clean-input passthrough: never touch what is already clean ----
+    removed_total = sum(res['removed'].values())
+    if removed_total == 0 and jb_abs < max(D * 2e-4, 0.02) and jb_rel < 0.08:
+        res['status'] = 'passthrough'
+        res['reason'] = 'already clean'
+        res['dense_orig'] = pts
+        res['dense_new'] = pts
+        return res
+
+    # ---- uniform resample (physical units from here on) ----
+    total = poly_len(pts, closed)
+    step0 = max(total / 6000.0, D * 0.0008, 1e-6)
+    dense = resample(pts, step0, closed)
+    step = total / len(dense)
+    # the guard compares against the RAW input: cleanup + smoothing + fit
+    # share one budget, so the subject can never drift in uncounted stages.
+    res['dense_orig'] = resample(raw, step0, closed)
+    _sg = seg_lengths(pts, closed)
+    _sg = _sg[_sg > 1e-12]
+    med_spacing = float(np.median(_sg)) if len(_sg) else step
+
+    # ---- corner classification (after pre-smooth, physical window) ----
+    window_len = D * 0.010
+    sharp_deg = 55.0 - fid * 0.35
+    mask, turns, mag, k = detect_corners(dense, step, window_len, sharp_deg,
+                                         closed, med_spacing=med_spacing)
+    while mask.sum() > max(8, len(dense) // 50) and sharp_deg < 120:
+        sharp_deg *= 1.25  # adaptive: never drown in "corners"
+        mask, turns, mag, k = detect_corners(dense, step, window_len, sharp_deg,
+                                             closed, med_spacing=med_spacing)
+    corners = sorted(int(i) for i in np.where(mask)[0])
+    feats = detect_regular_features(dense, step, closed)
+    if feats:
+        corners = sorted(set(corners) | set(feats))
+        notes.append('%d repeated feature(s) pinned (teeth/serration guard)'
+                     % len(feats))
+    res['corners'] = len([c for c in corners if mag[c] < 140])
+    res['cusps'] = len([c for c in corners if mag[c] >= 140])
+    res['rounded'] = int(((mag >= 12.0) & (mag < sharp_deg)).sum())
+
+    # B_cap was fixed before cleanup: every stage shares one budget.
+
+    # ---- corner-protective denoise with sigma search (strong -> gentle) ----
+    # sigma must span MULTIPLE vertices to average white noise: a kernel
+    # narrower than the vertex spacing only rounds interpolation kinks.
+    nt = P['noise_target']
+    if nt is not None:
+        sigma_px = D * 0.005 * float(nt)
+    else:
+        sigma_px = max(D * (0.0004 + 0.006 * (P['smoothness'] / 100.0)),
+                       med_spacing * (2.0 + 3.0 * (P['smoothness'] / 100.0)))
+    sigma_px = min(sigma_px, D * 0.05)
+    sigma_s = sigma_px / step
+    # ---- split points (sigma-independent) ----
+    if corners:
+        bounds = corners
+    elif closed:
+        bounds = [0, len(dense) // 2]
+    else:
+        bounds = [0, len(dense) - 1]
+    if not closed and bounds[0] != 0:
+        bounds = [0] + bounds
+    if not closed and bounds[-1] != len(dense) - 1:
+        bounds = bounds + [len(dense) - 1]
+
+    # ---- nested search: sigma (strong -> gentle) x fit-tol (loose -> tight).
+    # Every passing combination is collected; fewest segments wins, smallest
+    # deviation breaks ties. Nothing may exceed B_cap, ever.
+    candidates = []
+    last_reason, last_dev = 'no candidate', float('inf')
+    kb = max(2, k // 2)
+    for factor in (1.0, 0.5, 0.25, 0.125):
+        sm_try = smooth(dense, sigma_s * factor, closed)
+        sm_r = rebuild_corners(sm_try, corners, kb, step, closed, dense,
+                               max_move=B_cap * 0.5)
+        if P['round_corners']:
+            for i in corners:
+                if mag[i] < 140:
+                    a = sm_r[(i - kb) % len(sm_r)] if closed else sm_r[max(0, i - kb)]
+                    b = sm_r[(i + kb) % len(sm_r)] if closed else sm_r[min(len(sm_r) - 1, i + kb)]
+                    new = 0.55 * sm_r[i] + 0.45 * (a + b) / 2
+                    mv = float(np.hypot(*(new - dense[i])))
+                    lim = B_cap * 0.25
+                    sm_r[i] = (dense[i] + (new - dense[i]) * (lim / mv)
+                               if mv > lim else new)
+        # displacement of the rebuilt candidate: pinning/snapping already
+        # fixed the corner round-off, so every point counts, no exclusions.
+        disp = np.hypot((sm_r - dense)[:, 0], (sm_r - dense)[:, 1])
+        dmax_try = float(disp.max()) if len(disp) else 0.0
+        # total displacement vs RAW = cleanup + smoothing (+ fit later)
+        if cleanup_dev + dmax_try > B_cap:
+            last_reason = ('smoothing moves %.2f u, over the %.2f u cap'
+                           % (cleanup_dev + dmax_try, B_cap))
+            last_dev = cleanup_dev + dmax_try
+            continue
+        budget_try = min(B_cap, cleanup_dev + dmax_try * 1.5
+                         + max(D * 2e-4, B_cap * 0.02))
+        headroom_try = max(budget_try - cleanup_dev - dmax_try, D * 1e-6)
+        for ci in corners:  # keep corner moves inside the budget accounting
+            if float(np.hypot(*(sm_r[ci] - dense[ci]))) > budget_try * 0.5:
+                sm_r[ci] = dense[ci]
+        if closed:
+            spans = [_span_pts(sm_r, a, b, True)
+                     for a, b in zip(bounds, bounds[1:] + bounds[:1])]
+        else:
+            spans = [sm_r[a:b + 1] for a, b in zip(bounds[:-1], bounds[1:])]
+        fine_step_try = min(step, max(headroom_try * 0.15, total / 30000.0, 1e-9))
+        fine_orig = resample(raw, fine_step_try, closed)
+        area_orig = signed_area(fine_orig)
+        for tol in (headroom_try * 1.0, headroom_try * 0.5,
+                    headroom_try * 0.25, headroom_try * 0.125,
+                    headroom_try * 0.0625):
+            segs = []
+            for span in spans:
+                segs.extend(fit_span(span, max(tol, 1e-9)))
+            if not segs:
+                continue
+            cand = sample_segments(sm_r[bounds[0]], segs, step=fine_step_try)
+            ok, reason, dev = guard_candidate(fine_orig, cand, budget_try,
+                                              closed, area_orig)
+            if ok:
+                candidates.append((segs, cand, dev, tol, sm_r, budget_try,
+                                   factor, dmax_try))
+                break
+            last_reason, last_dev = reason, dev
+    accepted = (min(candidates, key=lambda c: (len(c[0]), c[2]))
+                if candidates else None)
+    if P['round_corners']:
+        notes.append('corners rounded (explicit option, pro mode)')
+    if accepted is None:
+        res['status'] = 'reverted'
+        res['reason'] = last_reason
+        res['budget'] = B_cap
+        # revert outputs the budget-legal cleaned curve (NOT raw, NOT the
+        # rejected candidate): reported dev is the cleanup displacement.
+        res['dev'] = cleanup_dev
+        res['dense_new'] = dense
+        idx = np.linspace(0, len(pts) - 1, min(len(pts), 400)).astype(int)
+        res['segments'] = [('L', pts[j].copy()) for j in idx[1:]]
+        res['start'] = pts[idx[0]].copy()
+        return res
+    segs, cand, dev, tol_used, sm, budget, factor, dmax = accepted
+    res['budget'] = budget
+    if factor < 1.0:
+        notes.append('gentler smoothing used to respect fidelity (x%.3g)'
+                     % factor)
+    n_after = len(segs) if closed else 1 + len(segs)
+    if n_after > max(4, 1.25 * sp['anchors']):
+        res['status'] = 'reverted'  # more nodes is never "better"
+        res['reason'] = 'smoothing would add nodes (%d -> %d)' % (
+            sp['anchors'], n_after)
+        res['dev'] = dev
+        res['dense_new'] = dense
+        idx = np.linspace(0, len(pts) - 1, min(len(pts), 400)).astype(int)
+        res['segments'] = [('L', pts[j].copy()) for j in idx[1:]]
+        res['start'] = pts[idx[0]].copy()
+        return res
+    res['segments'] = segs
+    res['start'] = sm[bounds[0]].copy()
+    res['dense_new'] = cand
+    res['dev'] = dev
+    res['tol_used'] = tol_used
+    res['jitter_after'] = estimate_noise(
+        cand[::max(1, len(cand) // 2000)], closed)
+
+    # ---- clean-input passthrough: byte-identical when nothing was needed ----
+    removed_total = sum(res['removed'].values())
+    if (removed_total == 0 and len(segs) >= 0.97 * max(1, sp['anchors'])
+            and dev < D * 5e-4):
+        res['status'] = 'passthrough'
+        res['reason'] = 'already clean'
+        res['dense_new'] = dense
+        return res
+    return res
+
+
+def _pairwise_min_dist(a, b, cap=1200):
+    a = np.asarray(a, float)
+    b = np.asarray(b, float)
+    if len(a) == 0 or len(b) == 0:
+        return float('inf')
+    if len(a) > cap:
+        a = a[::len(a) // cap + 1]
+    if len(b) > cap:
+        b = b[::len(b) // cap + 1]
+    d, _ = cKDTree(a).query(b)
+    return float(d.min())
+
+
+def _clearance_caps(subpaths, D):
+    """Per-path budget cap from neighbour clearance: paths can never merge.
+
+    Each path may move at most 40% of its gap to the nearest neighbour, so
+    even two neighbours moving straight at each other keep 20% of the gap.
+    """
+    raws = []
+    for sp in subpaths:
+        pts = np.asarray(sp['pts'], float)
+        if len(pts) >= 2:
+            st = max(poly_len(pts, bool(sp['closed'])) / 1500.0, D * 0.001,
+                     1e-9)
+            raws.append(resample(pts, st, bool(sp['closed'])))
+        else:
+            raws.append(pts)
+    caps = []
+    for i, a in enumerate(raws):
+        gap = float('inf')
+        for j, b in enumerate(raws):
+            if i == j:
+                continue
+            gap = min(gap, _pairwise_min_dist(a, b))
+        caps.append(gap * 0.4 if np.isfinite(gap) else None)
+    return caps
+
+
+def _separation_check(subpaths, results, notes):
+    """Revert pairs whose open gap closed to a touch (backstop for caps).
+
+    Pairs already touching in the INPUT (shared edges in icons) are exempt:
+    only a gap that was clearly open and is now closed counts as a violation.
+    """
+    touched = 0
+    gmin_before, gmin_after = float('inf'), float('inf')
+    idx = [i for i, r in enumerate(results)
+           if r['status'] != 'removed' and len(r['dense_new']) > 0
+           and len(r['dense_orig']) > 0]
+    for ii in range(len(idx)):
+        for jj in range(ii + 1, len(idx)):
+            i, j = idx[ii], idx[jj]
+            before = _pairwise_min_dist(results[i]['dense_orig'],
+                                        results[j]['dense_orig'])
+            after = _pairwise_min_dist(results[i]['dense_new'],
+                                       results[j]['dense_new'])
+            gmin_before = min(gmin_before, before)
+            gmin_after = min(gmin_after, after)
+            ni = np.asarray(results[i]['dense_new'], float)
+            nj = np.asarray(results[j]['dense_new'], float)
+            si = poly_len(ni, results[i]['closed']) / max(len(ni), 1)
+            sj = poly_len(nj, results[j]['closed']) / max(len(nj), 1)
+            eps = max(si, sj, 1e-9)
+            if after < eps and before > 3 * eps:
+                touched += 1
+                for k in (i, j):
+                    r = results[k]
+                    if r['status'] in ('smoothed', 'passthrough'):
+                        r['status'] = 'reverted'
+                        r['reason'] = ('neighbour paths would touch/merge - '
+                                       'kept original')
+                        r['dev'] = 0.0
+                        r['dense_new'] = r['dense_orig']
+                        pts = np.asarray(subpaths[k]['pts'], float)
+                        m = min(len(pts), 400)
+                        ix = np.linspace(0, len(pts) - 1, m).astype(int)
+                        r['segments'] = [('L', pts[t].copy()) for t in ix[1:]]
+                        r['start'] = pts[ix[0]].copy()
+    if touched:
+        notes.append('%d neighbour pair(s) would touch after smoothing - '
+                     'kept original' % touched)
+    return touched, gmin_before, gmin_after
+
+
+def smooth_artwork(art, options):
+    subpaths = art['subpaths']
+    all_pts = [sp['pts'] for sp in subpaths if len(sp['pts'])]
+    if all_pts:
+        big = np.vstack(all_pts)
+        D = float(np.hypot(*(big.max(axis=0) - big.min(axis=0))))
+    else:
+        D = float(max(art['vb'][2], art['vb'][3]))
+    D = max(D, 1e-6)
+    P = _resolve_params(subpaths, options or {}, D)
+    notes = []
+    caps = _clearance_caps(subpaths, D)
+    results = [_smooth_one(sp, D, P, notes, clear_cap=c)
+               for sp, c in zip(subpaths, caps)]
+    touched, gap_before, gap_after = _separation_check(subpaths, results,
+                                                       notes)
+    for r in results:
+        if r['status'] == 'removed':
+            r['anchors_after'] = 0
+        elif r['status'] in ('passthrough', 'reverted', 'degenerate'):
+            r['anchors_after'] = r['anchors_before']
+        elif r['closed']:
+            r['anchors_after'] = len(r['segments'])
+        else:
+            r['anchors_after'] = 1 + len(r['segments'])
+    n_rev = sum(1 for r in results if r['status'] == 'reverted')
+    if subpaths and all(r['status'] in ('passthrough', 'degenerate') for r in results):
+        notes.append('file already clean - returned untouched')
+    elif subpaths and all(r['status'] in ('reverted', 'passthrough', 'degenerate', 'removed')
+                          for r in results) and n_rev:
+        notes.append('all smoothing candidates failed the guard - original kept where possible')
+    if P['round_corners']:
+        pass  # already noted per path
+    summary = {
+        'anchors_before': int(sum(r['anchors_before'] for r in results)),
+        'anchors_after': int(sum(r['anchors_after'] for r in results)),
+        'deviation_max': round(max([r['dev'] for r in results] + [0.0]), 4),
+        'budget': round(max([r['budget'] for r in results] + [0.0]), 4),
+        'self_intersections': 0,  # filled by QA/render stage verify
+        'reverted': n_rev,
+        'removed_tiny': sum(1 for r in results if r['status'] == 'removed'),
+        'smoothed': sum(1 for r in results if r['status'] == 'smoothed'),
+        'passthrough': sum(1 for r in results if r['status'] in ('passthrough', 'degenerate')),
+        'spikes_removed': sum(r['removed'].get('spikes', 0) for r in results),
+        'zigzag_removed': sum(r['removed'].get('zigzag', 0) for r in results),
+        'dups_removed': sum(r['removed'].get('duplicates', 0) for r in results),
+        'collinear_removed': sum(r['removed'].get('collinear', 0) for r in results),
+        'corners_kept': sum(r['corners'] + r['cusps'] for r in results),
+        'art_diag': round(D, 3),
+        'pairs_touched': touched,
+        'min_gap_before': (round(gap_before, 4)
+                           if np.isfinite(gap_before) else None),
+        'min_gap_after': (round(gap_after, 4)
+                          if np.isfinite(gap_after) else None),
+    }
+    return {'params': P, 'results': results, 'summary': summary,
+            'notes': sorted(set(notes)), 'diag': D}
+
+</script>
+<script type="text/x-python" id="emb-core-raster.py">
+"""Pixel-level QA: scanline-render original vs smoothed, then compare.
+
+Renders filled geometry (even-odd) with numpy only - no external renderer
+needed - and reports silhouette IoU, changed pixels, edge chamfer distance
+and an SSIM-style alpha similarity, plus a before/after/heatmap compare PNG.
+"""
+import io
+
+import numpy as np
+from scipy import ndimage
+from PIL import Image, ImageDraw
+
+
+def render_mask(items, vb, out_w=600):
+    """items: list of (pts, closed, filled). Returns float mask HxW in 0..1."""
+    vx, vy, vw, vh = vb
+    scale = out_w / max(vw, 1e-9)
+    out_h = max(1, int(round(vh * scale)))
+    E = []
+    for pts, closed, filled in items:
+        p = np.asarray(pts, float)
+        if not filled or len(p) < 3:
+            continue
+        q = (p - np.array([vx, vy])) * scale
+        qq = np.vstack([q, q[:1]])  # implicit close for fill
+        x1, y1 = qq[:-1, 0], qq[:-1, 1]
+        x2, y2 = qq[1:, 0], qq[1:, 1]
+        keep = np.abs(y2 - y1) > 1e-9
+        for a, b, c, d in zip(x1[keep], y1[keep], x2[keep], y2[keep]):
+            E.append((a, b, c, d))
+    mask = np.zeros((out_h, out_w), np.float32)
+    if not E:
+        return mask
+    E = np.array(E, float)
+    for r in range(out_h):
+        yc = r + 0.5
+        cross = ((E[:, 1] <= yc) & (E[:, 3] > yc)) | ((E[:, 3] <= yc) & (E[:, 1] > yc))
+        if not np.any(cross):
+            continue
+        e = E[cross]
+        xs = e[:, 0] + (yc - e[:, 1]) / (e[:, 3] - e[:, 1]) * (e[:, 2] - e[:, 0])
+        xs.sort()
+        for k in range(0, len(xs) - 1, 2):
+            a = max(0, int(np.floor(xs[k])))
+            b = min(out_w, int(np.ceil(xs[k + 1])))
+            if b > a:
+                mask[r, a:b] = 1.0
+    return mask
+
+
+def ssim_alpha(a, b):
+    a = np.asarray(a, dtype=float)
+    b = np.asarray(b, dtype=float)
+    mu_a, mu_b = a.mean(), b.mean()
+    va, vb_ = a.var(), b.var()
+    cov = ((a - mu_a) * (b - mu_b)).mean()
+    c1, c2 = 0.01 ** 2, 0.03 ** 2
+    den = (mu_a ** 2 + mu_b ** 2 + c1) * (va + vb_ + c2)
+    if den <= 0:
+        return 1.0 if float(abs(mu_a - mu_b)) < 1e-12 else 0.0
+    return float(((2 * mu_a * mu_b + c1) * (2 * cov + c2)) / den)
+
+
+def compare_masks(a, b):
+    A = np.asarray(a) > 0.5
+    B = np.asarray(b) > 0.5
+    inter = float((A & B).sum())
+    union = float((A | B).sum())
+    iou = inter / union if union else 1.0
+    changed = float((A != B).mean() * 100.0)
+    ea = A ^ ndimage.binary_erosion(A)
+    eb = B ^ ndimage.binary_erosion(B)
+    if ea.sum() == 0 or eb.sum() == 0:
+        cham = 0.0
+    else:
+        dt_b = ndimage.distance_transform_edt(~eb)
+        dt_a = ndimage.distance_transform_edt(~ea)
+        cham = float((dt_b[ea].mean() + dt_a[eb].mean()) / 2.0)
+    return {'silhouette_iou': round(float(iou), 6),
+            'pixels_changed_pct': round(changed, 4),
+            'chamfer_px': round(cham, 4),
+            'ssim_alpha': round(ssim_alpha(a, b), 6)}
+
+
+def _mask_to_rgb(mask, fg=(20, 20, 25), bg=(255, 255, 255)):
+    m = (np.asarray(mask) > 0.5)
+    img = np.zeros((m.shape[0], m.shape[1], 3), np.uint8)
+    img[:, :] = bg
+    img[m] = fg
+    return Image.fromarray(img)
+
+
+def heatmap_image(mask_o, mask_s):
+    A = np.asarray(mask_o) > 0.5
+    B = np.asarray(mask_s) > 0.5
+    h, w = A.shape
+    img = np.full((h, w, 3), 247, np.uint8)  # same background
+    img[A & B] = (76, 154, 99)    # GREEN  = safe / identical
+    img[A & ~B] = (229, 72, 77)   # RED    = removed / moved away
+    img[B & ~A] = (245, 166, 35)  # AMBER  = added / moved in
+    return Image.fromarray(img)
+
+
+def compare_png(mask_o, mask_s, panel_w=520):
+    """Side-by-side ORIGINAL | SMOOTHED | DIFFERENCE panel as PNG bytes."""
+    panels = [_mask_to_rgb(mask_o),
+              _mask_to_rgb(mask_s),
+              heatmap_image(mask_o, mask_s)]
+    labels = ['ORIGINAL (rendered)', 'SMOOTHED (rendered)',
+              'DIFFERENCE  green=same  red/orange=changed']
+    scaled = []
+    for im in panels:
+        r = panel_w / max(im.width, 1)
+        scaled.append(im.resize((panel_w, max(1, int(im.height * r))), Image.NEAREST))
+    H = max(im.height for im in scaled)
+    bar, pad = 26, 8
+    W = panel_w * 3 + pad * 4
+    canvas = Image.new('RGB', (W, H + bar + pad * 2), (13, 17, 23))
+    dr = ImageDraw.Draw(canvas)
+    for i, im in enumerate(scaled):
+        x = pad + i * (panel_w + pad)
+        canvas.paste(im, (x, bar + pad))
+        dr.text((x + 6, 6), labels[i], fill=(230, 237, 243))
+    buf = io.BytesIO()
+    canvas.save(buf, format='PNG')
+    return buf.getvalue()
+
+</script>
+<script type="text/x-python" id="emb-core-validate.py">
+"""Marketplace preflight checklist + diagnostic quality scores.
+
+Scores are internal diagnostics, never an acceptance guarantee - every
+marketplace also applies its own moderation review.
+"""
+from .geometry import signed_area
+
+SITES = {
+    'generic_svg': dict(label='Generic SVG', formats='SVG', max_mb=None,
+                        mp_min=None, mp_max=None, forbid_open=False,
+                        forbid_stroke=False, forbid_text=False,
+                        forbid_raster=False, forbid_filter=False,
+                        require_00=False, transparent_bg=False),
+    'adobe_stock': dict(label='Adobe Stock', formats='AI / EPS / SVG', max_mb=45,
+                        mp_min=15, mp_max=65, mp_basis='artboard',
+                        forbid_open=False, forbid_stroke=False, forbid_text=True,
+                        forbid_raster=True, forbid_filter=False,
+                        require_00=True, transparent_bg=True),
+    'shutterstock': dict(label='Shutterstock', formats='EPS 10 / EPS 8',
+                         max_mb=100, mp_min=4, mp_max=25, mp_basis='bbox',
+                         forbid_open=True, forbid_stroke=True, forbid_text=True,
+                         forbid_raster=True, forbid_filter=False,
+                         require_00=False, transparent_bg=False),
+    'vecteezy': dict(label='Vecteezy', formats='EPS 10', max_mb=None,
+                     mp_min=4, mp_max=25, mp_basis='bbox',
+                     forbid_open=True, forbid_stroke=True, forbid_text=True,
+                     forbid_raster=True, forbid_filter=True,
+                     require_00=False, transparent_bg=False),
+    'freepik': dict(label='Freepik', formats='EPS (CS6 / CC2017+)',
+                    max_mb=80, min_kb=500, mp_min=None, mp_max=None,
+                    forbid_open=True, forbid_stroke=True, forbid_text=True,
+                    forbid_raster=True, forbid_filter=False,
+                    require_00=False, transparent_bg=False),
+    'eps10': dict(label='EPS 10', formats='EPS 10', max_mb=100,
+                  mp_min=4, mp_max=25, mp_basis='bbox',
+                  forbid_open=True, forbid_stroke=True, forbid_text=True,
+                  forbid_raster=True, forbid_filter=True,
+                  require_00=False, transparent_bg=False),
+    'eps8': dict(label='EPS 8', formats='EPS 8', max_mb=100,
+                 mp_min=4, mp_max=25, mp_basis='bbox',
+                 forbid_open=True, forbid_stroke=True, forbid_text=True,
+                 forbid_raster=True, forbid_filter=True,
+                 require_00=False, transparent_bg=False),
+    'icon': dict(label='Icon set', formats='SVG', max_mb=None,
+                 mp_min=None, mp_max=None, forbid_open=False,
+                 forbid_stroke=False, forbid_text=True,
+                 forbid_raster=True, forbid_filter=False,
+                 require_00=True, transparent_bg=True),
+    'silhouette': dict(label='Silhouette', formats='SVG / EPS', max_mb=None,
+                       mp_min=None, mp_max=None, forbid_open=False,
+                       forbid_stroke=True, forbid_text=True,
+                       forbid_raster=True, forbid_filter=False,
+                       require_00=False, transparent_bg=False),
+}
+
+SITE_ORDER = ['generic_svg', 'adobe_stock', 'shutterstock', 'vecteezy',
+              'freepik', 'eps10', 'eps8', 'icon', 'silhouette']
+
+
+def _ck(cid, label, status, detail=''):
+    return {'id': cid, 'label': label, 'status': status, 'detail': detail}
+
+
+def build_checklist(ctx, site_key):
+    """ctx: dict of measured facts (see server.py). Returns (checks, scores)."""
+    site = SITES.get(site_key, SITES['generic_svg'])
+    C = []
+    n_open = ctx.get('open_paths', 0)
+    if n_open == 0:
+        C.append(_ck('closed', 'Closed paths', 'pass', 'all paths closed'))
+    elif site['forbid_open']:
+        C.append(_ck('closed', 'Closed paths', 'fail',
+                     '%d open path(s) - this profile forbids them' % n_open))
+    else:
+        C.append(_ck('closed', 'Closed paths', 'warn',
+                     '%d open path(s) kept as-is' % n_open))
+    C.append(_ck('dups', 'No duplicate points', 'pass',
+                 '%d removed' % ctx.get('dups_removed', 0)))
+    if ctx.get('spikes_removed', 0):
+        C.append(_ck('spikes', 'No accidental spikes', 'pass',
+                     '%d spike(s) repaired' % ctx['spikes_removed']))
+    else:
+        C.append(_ck('spikes', 'No accidental spikes', 'pass', 'none found'))
+    tiny_left = ctx.get('tiny_remaining', 0)
+    if tiny_left:
+        C.append(_ck('fragments', 'No micro fragments', 'warn',
+                     '%d tiny object(s) kept (remove_tiny off)' % tiny_left))
+    else:
+        C.append(_ck('fragments', 'No micro fragments', 'pass',
+                     '%d removed' % ctx.get('tiny_removed', 0)))
+    si = ctx.get('self_intersections', 0)
+    C.append(_ck('selfint', 'No self-intersections',
+                 'pass' if si == 0 else 'fail',
+                 'none' if si == 0 else '%d found - FIX BEFORE UPLOAD' % si))
+    C.append(_ck('winding', 'Winding / compound paths preserved',
+                 'pass' if ctx.get('winding_ok', True) else 'fail',
+                 'outer/inner orientation intact'
+                 if ctx.get('winding_ok', True) else 'winding changed!'))
+    if ctx.get('subpaths_before', 0) == ctx.get('subpaths_after', 0):
+        C.append(_ck('topocount', 'Topology: subpath count', 'pass',
+                     '%d subpaths intact' % ctx.get('subpaths_after', 0)))
+    else:
+        C.append(_ck('topocount', 'Topology: subpath count', 'warn',
+                     '%d -> %d (tiny/degenerate only)' % (
+                         ctx.get('subpaths_before', 0),
+                         ctx.get('subpaths_after', 0))))
+    off = ctx.get('off_artboard', 0)
+    C.append(_ck('offboard', 'No objects outside artboard',
+                 'pass' if off == 0 else 'warn',
+                 'all inside' if off == 0 else '%d flagged' % off))
+    size_kb = ctx.get('out_bytes', 0) / 1024.0
+    if site.get('max_mb') and ctx.get('out_bytes', 0) > site['max_mb'] * 1024 * 1024:
+        C.append(_ck('size', 'File size <= %d MB' % site['max_mb'], 'fail',
+                     '%.1f KB' % size_kb))
+    elif site.get('min_kb') and size_kb < site['min_kb']:
+        C.append(_ck('size', 'File size in range', 'warn',
+                     '%.1f KB (profile min %d KB)' % (size_kb, site['min_kb'])))
+    else:
+        C.append(_ck('size', 'File size valid', 'pass', '%.1f KB' % size_kb))
+    mp = ctx.get('mp_value')
+    if site.get('mp_min') is not None and mp is not None:
+        ok = site['mp_min'] <= mp <= site['mp_max']
+        C.append(_ck('mp', 'Artwork size %g-%g MP (%s)' % (
+            site['mp_min'], site['mp_max'], site.get('mp_basis', 'artboard')),
+            'pass' if ok else 'warn',
+            'current %.2f MP%s' % (mp, '' if ok else
+                                  ' - rescale artboard, geometry unaffected')))
+    else:
+        C.append(_ck('mp', 'Artwork size', 'pass',
+                     '%.2f MP (no constraint)' % (mp or 0)))
+    n_stroke = ctx.get('stroked_paths', 0)
+    if n_stroke == 0:
+        C.append(_ck('stroke', 'Strokes expanded / none', 'pass', 'no strokes'))
+    elif site['forbid_stroke']:
+        C.append(_ck('stroke', 'Strokes expanded', 'fail',
+                     '%d stroked path(s) - expand to fills' % n_stroke))
+    else:
+        C.append(_ck('stroke', 'Strokes', 'warn',
+                     '%d stroked path(s) preserved' % n_stroke))
+    if ctx.get('n_text', 0):
+        C.append(_ck('fonts', 'Fonts outlined', 'fail' if site['forbid_text'] else 'warn',
+                     '%d <text> element(s) - convert to outlines'
+                     % ctx['n_text']))
+    else:
+        C.append(_ck('fonts', 'Fonts outlined', 'pass', 'no live text'))
+    C.append(_ck('raster', 'No embedded raster', 'pass' if not ctx.get('n_image', 0) else 'fail',
+                 'none' if not ctx.get('n_image', 0)
+                 else '%d <image> element(s)' % ctx['n_image']))
+    if ctx.get('n_filter', 0):
+        C.append(_ck('effects', 'No unsupported effects',
+                     'fail' if site['forbid_filter'] else 'warn',
+                     '%d filter(s) present' % ctx['n_filter']))
+    else:
+        C.append(_ck('effects', 'No unsupported effects', 'pass', 'none'))
+    if ctx.get('artboard_at_origin', True):
+        C.append(_ck('origin', 'Artboard at (0,0)', 'pass', 'viewBox origin 0,0'))
+    else:
+        C.append(_ck('origin', 'Artboard at (0,0)',
+                     'warn' if site['require_00'] else 'pass',
+                     'viewBox starts at %s' % ctx.get('vb_origin', '?')))
+    if ctx.get('fullbleed_bg', False):
+        C.append(_ck('bg', 'Transparent background',
+                     'warn' if site['transparent_bg'] else 'pass',
+                     'full-bleed opaque rect found'
+                     if site['transparent_bg'] else 'opaque bg rect kept'))
+    else:
+        C.append(_ck('bg', 'Transparent background', 'pass', 'no bg rect'))
+
+    fails = sum(1 for c in C if c['status'] == 'fail')
+    warns = sum(1 for c in C if c['status'] == 'warn')
+    iou = ctx.get('iou', 1.0)
+    cham = ctx.get('chamfer_px', 0.0)
+    red = ctx.get('reduction', 0.0)
+    jb, ja = ctx.get('jitter_before', 0.0), ctx.get('jitter_after', 0.0)
+
+    gq = 100 - (30 if si else 0) - (10 if (n_open and site['forbid_open']) else
+                                    min(9, 3 * n_open))
+    gq -= min(6, 2 * tiny_left) + (5 if (n_stroke and site['forbid_stroke']) else 0)
+    gq -= (5 if ctx.get('n_text') else 0) + (5 if ctx.get('n_image') else 0)
+    topo = 100 - (40 if si else 0) - (0 if ctx.get('winding_ok', True) else 20)
+    if ctx.get('subpaths_before', 0) != ctx.get('subpaths_after', 0):
+        topo -= 10
+    if jb < 0.05:
+        smooth_q = 100.0
+    elif ctx.get('n_smoothed', 0) == 0:
+        smooth_q = 60.0
+    else:
+        smooth_q = max(5.0, min(99.0, 100.0 * (1.0 - ja / max(jb, 1e-9))))
+    if red >= 0.9:
+        node_q = 99
+    elif red >= 0.7:
+        node_q = 95
+    elif red >= 0.5:
+        node_q = 90
+    elif red >= 0.3:
+        node_q = 80
+    elif red >= 0.1:
+        node_q = 65
+    elif red > 0:
+        node_q = 50
+    else:
+        node_q = 100 if jb < 0.05 else 30
+    scores = {
+        'geometry_quality': int(max(0, min(100, round(gq)))),
+        'silhouette_fidelity': round(max(0.0, min(100.0, 100.0 * iou
+                                                 - min(5.0, cham))), 2),
+        'topology': int(max(0, min(100, topo))),
+        'curve_smoothness': round(smooth_q, 1),
+        'node_optimization': int(node_q),
+        'marketplace_readiness': int(max(0, min(100, 100 - 20 * fails - 4 * warns))),
+    }
+    return C, scores
+
+</script>
+<script type="text/x-python" id="emb-core-export.py">
+"""Export: rebuilt SVG (structure-preserving) + EPS 8/10 writer."""
+import copy
+import math
+
+import numpy as np
+import xml.etree.ElementTree as ET
+
+from .svg_parse import GEOM_TAGS, apply_mat
+
+DROP_ATTRS = {'d', 'transform', 'x', 'y', 'width', 'height', 'rx', 'ry',
+              'cx', 'cy', 'r', 'points', 'x1', 'y1', 'x2', 'y2'}
+
+
+def _local(tag):
+    return tag.split('}', 1)[-1] if '}' in tag else tag
+
+
+def _fmt(v):
+    s = '%.3f' % float(v)
+    s = s.rstrip('0').rstrip('.')
+    return '0' if s in ('', '-0') else s
+
+
+def segments_to_d(start, segments, closed):
+    parts = ['M%s %s' % (_fmt(start[0]), _fmt(start[1]))]
+    for s in segments:
+        if s[0] == 'L':
+            parts.append('L%s %s' % (_fmt(s[1][0]), _fmt(s[1][1])))
+        else:
+            _, c1, c2, p = s
+            parts.append('C%s %s %s %s %s %s' % (
+                _fmt(c1[0]), _fmt(c1[1]), _fmt(c2[0]), _fmt(c2[1]),
+                _fmt(p[0]), _fmt(p[1])))
+    if closed:
+        parts.append('Z')
+    return ''.join(parts)
+
+
+def _mk_path(like_el):
+    t = like_el.tag
+    if '}' in t:
+        return ET.Element(t.split('}')[0] + '}path')
+    return ET.Element('path')
+
+
+def _to_local(M_exp, pts):
+    try:
+        inv = np.linalg.inv(M_exp)
+    except np.linalg.LinAlgError:
+        return None
+    return apply_mat(inv, np.asarray(pts, float))
+
+
+def _seg_local(M_exp, start, segments):
+    pts = [np.asarray(start, float)]
+    for s in segments:
+        if s[0] == 'L':
+            pts.append(np.asarray(s[1], float))
+        else:
+            pts.extend([np.asarray(s[1], float), np.asarray(s[2], float),
+                        np.asarray(s[3], float)])
+    loc = _to_local(M_exp, np.array(pts))
+    if loc is None:
+        return None, None
+    out = []
+    i = 1
+    for s in segments:
+        if s[0] == 'L':
+            out.append(('L', loc[i]))
+            i += 1
+        else:
+            out.append(('C', loc[i], loc[i + 1], loc[i + 2]))
+            i += 3
+    return loc[0], out
+
+
+def build_svg(art, results, global_revert_text=None):
+    """Rebuild the SVG: defs/order/groups preserved, only changed geometry new.
+
+    Elements whose subpaths are all verbatim (passthrough/noop) are copied
+    byte-for-byte, so clean inputs come out byte-identical.
+    """
+    if global_revert_text is not None:
+        return global_revert_text
+    by_el = {}
+    for sp, r in zip(art['subpaths'], results):
+        by_el.setdefault(id(sp['el']), []).append((sp, r))
+    ET.register_namespace('', 'http://www.w3.org/2000/svg')
+    root = art['root']
+    new_root = ET.Element(root.tag, dict(root.attrib))
+    new_root.text = root.text
+    new_root.tail = None
+
+    def rebuild(src_parent, dst_parent):
+        for child in list(src_parent):
+            tag = _local(child.tag)
+            if tag in GEOM_TAGS and id(child) in by_el:
+                outs = by_el[id(child)]
+                if all(r['status'] in ('passthrough',) for _, r in outs):
+                    dst_parent.append(copy.deepcopy(child))
+                    continue
+                for sp, r in outs:
+                    if r['status'] in ('removed', 'degenerate'):
+                        continue
+                    if r['status'] == 'passthrough':
+                        # mixed element: render this subpath from original pts
+                        segs = [('L', q.copy()) for q in sp['pts'][1:]]
+                        start = sp['pts'][0].copy()
+                        closed = sp['closed']
+                    else:
+                        segs, start, closed = (r['segments'], r['start'], r['closed'])
+                    st, sg = _seg_local(sp['M_exp'], start, segs)
+                    if st is None:
+                        dst_parent.append(copy.deepcopy(child))
+                        break
+                    nel = _mk_path(child)
+                    for k, v in child.attrib.items():
+                        if _local(k) not in DROP_ATTRS:
+                            nel.set(k, v)
+                    nel.set('d', segments_to_d(st, sg, closed))
+                    nel.tail = child.tail
+                    dst_parent.append(nel)
+            elif len(child):
+                shell = ET.Element(child.tag, dict(child.attrib))
+                shell.text = child.text
+                shell.tail = child.tail
+                rebuild(child, shell)
+                dst_parent.append(shell)
+            else:
+                dst_parent.append(copy.deepcopy(child))
+
+    rebuild(root, new_root)
+    return '<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(
+        new_root, encoding='unicode')
+
+
+# ------------------------------------------------------------------- EPS
+
+_NAMED = {'black': (0, 0, 0), 'white': (1, 1, 1), 'red': (1, 0, 0),
+          'green': (0, 0.5, 0), 'blue': (0, 0, 1), 'yellow': (1, 1, 0),
+          'none': None}
+
+
+def parse_color(s):
+    s = (s or '').strip().lower()
+    if s in ('', 'none', 'transparent'):
+        return None
+    if s in _NAMED:
+        return _NAMED[s]
+    if s.startswith('#'):
+        h = s[1:]
+        try:
+            if len(h) == 3:
+                return tuple(int(c * 2, 16) / 255.0 for c in h)
+            if len(h) == 6:
+                return tuple(int(h[i:i + 2], 16) / 255.0 for i in (0, 2, 4))
+        except ValueError:
+            return (0, 0, 0)
+        return (0, 0, 0)
+    if s.startswith('rgb'):
+        import re
+        nums = re.findall(r'-?\d*\.?\d+%?', s)
+        vals = []
+        for x in nums[:3]:
+            if x.endswith('%'):
+                vals.append(float(x[:-1]) / 100.0)
+            else:
+                vals.append(float(x) / 255.0)
+        if len(vals) == 3:
+            return tuple(max(0.0, min(1.0, v)) for v in vals)
+        return (0, 0, 0)
+    if s.startswith('url('):
+        return 'gradient'
+    return (0, 0, 0)
+
+
+def to_eps(art, results, level=10):
+    """Minimal, dependency-free EPS 8/10 writer (filled paths + strokes)."""
+    W, H = art['W'], art['H']
+    L = []
+    L.append('%!PS-Adobe-3.0 EPSF-3.0')
+    L.append('%%%%BoundingBox: 0 0 %d %d' % (math.ceil(W), math.ceil(H)))
+    L.append('%%%%HiResBoundingBox: 0 0 %.3f %.3f' % (W, H))
+    L.append('%%Creator: vectorsmooth (EPS %d compatible)' % level)
+    L.append('%%Pages: 1')
+    L.append('%%EndComments')
+    notes = []
+    n_paths = 0
+    for sp, r in zip(art['subpaths'], results):
+        if r['status'] in ('removed', 'degenerate'):
+            continue
+        if r['status'] == 'passthrough':
+            segs = [('L', q.copy()) for q in sp['pts'][1:]]
+            start = sp['pts'][0].copy()
+            closed = sp['closed']
+        else:
+            segs, start, closed = r['segments'], r['start'], r['closed']
+        fill = parse_color(sp['fill'])
+        stroke = parse_color(sp['stroke'])
+        if fill == 'gradient' or stroke == 'gradient':
+            notes.append('gradient fill flattened to gray in EPS')
+            if fill == 'gradient':
+                fill = (0.5, 0.5, 0.5)
+            if stroke == 'gradient':
+                stroke = (0.5, 0.5, 0.5)
+        if fill is None and stroke is None:
+            continue
+        try:
+            sw = float(sp['stroke_width'])
+        except (TypeError, ValueError):
+            sw = 1.0
+        Y = lambda y: H - y  # noqa: E731 - SVG y-down -> PS y-up
+        L.append('newpath %.3f %.3f moveto' % (start[0], Y(start[1])))
+        for s in segs:
+            if s[0] == 'L':
+                L.append('%.3f %.3f lineto' % (s[1][0], Y(s[1][1])))
+            else:
+                _, c1, c2, p = s
+                L.append('%.3f %.3f %.3f %.3f %.3f %.3f curveto' % (
+                    c1[0], Y(c1[1]), c2[0], Y(c2[1]), p[0], Y(p[1])))
+        if closed:
+            L.append('closepath')
+        if fill is not None:
+            L.append('%.4f %.4f %.4f setrgbcolor' % fill)
+            L.append('eofill' if 'evenodd' in (sp['fill_rule'] or '') else 'fill')
+            # re-trace for stroke: simpler to re-emit path
+            if stroke is not None:
+                L.append('newpath %.3f %.3f moveto' % (start[0], Y(start[1])))
+                for s in segs:
+                    if s[0] == 'L':
+                        L.append('%.3f %.3f lineto' % (s[1][0], Y(s[1][1])))
+                    else:
+                        _, c1, c2, p = s
+                        L.append('%.3f %.3f %.3f %.3f %.3f %.3f curveto' % (
+                            c1[0], Y(c1[1]), c2[0], Y(c2[1]), p[0], Y(p[1])))
+                if closed:
+                    L.append('closepath')
+                L.append('%.4f %.4f %.4f setrgbcolor %.3f setlinewidth stroke'
+                         % (stroke + (sw,)))
+        else:
+            L.append('%.4f %.4f %.4f setrgbcolor %.3f setlinewidth stroke'
+                     % (stroke + (sw,)))
+        n_paths += 1
+    if n_paths == 0:
+        notes.append('no paintable geometry found')
+    L.append('showpage')
+    L.append('%%EOF')
+    return '\n'.join(L) + '\n', sorted(set(notes))
+
+</script>
+<script type="text/x-python" id="emb-core-pipeline.py">
+"""One pipeline used by the web server and the CLI.
+
+run(svg_text, opts) -> everything the UI/CLI needs: smoothed SVG, summary,
+notes, pixel QA, marketplace checklist + scores, compare PNG.
+"""
+import base64
+import time
+
+import numpy as np
+
+from .svg_parse import parse_svg
+from .clean import smooth_artwork
+from .raster import render_mask, compare_masks, compare_png
+from .validate import build_checklist, SITES
+from .export import build_svg, to_eps
+from .geometry import has_self_intersection, resample, poly_len, signed_area
+
+
+def _cap(pts, n=3000, closed=True):
+    p = np.asarray(pts, float)
+    if len(p) <= n or len(p) < 2:
+        return p
+    step = poly_len(p, closed) / n
+    return resample(p, max(step, 1e-9), closed)
+
+
+QA_GATES = {
+    # subject-lock floors: the render-vs-render proof that the artwork did
+    # not change. Breach -> the ORIGINAL file is returned, no exceptions.
+    'safe': {'iou': 0.985, 'changed': 2.0, 'chamfer': 1.5},
+    'pro': {'iou': 0.975, 'changed': 4.0, 'chamfer': 2.5},
+}
+
+
+def qa_gates_pass(m, mode):
+    """Hard subject-lock verdict on a render-compare dict. (ok, gates)"""
+    g = QA_GATES.get(mode, QA_GATES['safe'])
+    gates = {
+        'iou': {'value': float(m['silhouette_iou']), 'floor': g['iou'],
+                'pass': bool(m['silhouette_iou'] >= g['iou'])},
+        'changed': {'value': float(m['pixels_changed_pct']),
+                    'ceil': g['changed'],
+                    'pass': bool(m['pixels_changed_pct'] <= g['changed'])},
+        'chamfer': {'value': float(m['chamfer_px']), 'ceil': g['chamfer'],
+                    'pass': bool(m['chamfer_px'] <= g['chamfer'])},
+    }
+    gates['pass'] = all(v['pass'] for v in gates.values())
+    return gates['pass'], gates
+
+
+def run(svg_text, opts, do_qa=True):
+    t0 = time.time()
+    opts = dict(opts or {})
+    art = parse_svg(svg_text)
+    pipe = smooth_artwork(art, opts)
+    P = pipe['params']
+    results = pipe['results']
+    summary = dict(pipe['summary'])
+    notes = list(pipe['notes'])
+    if art['stats'].get('degenerate'):
+        notes.append('%d degenerate anchor(s) dropped'
+                     % art['stats']['degenerate'])
+
+    # global revert: nothing improved -> original bytes untouched
+    global_revert = (summary['smoothed'] == 0 and summary['removed_tiny'] == 0
+                     and len(art['subpaths']) > 0)
+    if global_revert:
+        svg_out = svg_text
+        if summary['reverted']:
+            notes.append('guard reverted every path - original file returned untouched')
+    else:
+        svg_out = build_svg(art, results)
+        try:
+            parse_svg(svg_out)  # re-open exported file: must parse
+        except ValueError as e:
+            notes.append('export re-parse failed (%s) - original returned' % e)
+            svg_out = svg_text
+            global_revert = True
+
+    # verify self-intersections on input + output geometry
+    n_before = n_after = 0
+    for sp, r in zip(art['subpaths'], results):
+        do = _cap(r['dense_orig'], 1200, sp['closed'])
+        if len(do) >= 4 and has_self_intersection(do, sp['closed']):
+            n_before += 1
+        if r['status'] == 'removed':
+            continue
+        dn = _cap(r['dense_new'], 1200, r['closed'])
+        if len(dn) >= 4 and has_self_intersection(dn, r['closed']):
+            n_after += 1
+    summary['self_intersections'] = n_after
+    if n_before and n_after:
+        notes.append('input already had %d self-intersecting path(s) - kept as-is, fix manually'
+                     % n_before)
+
+    # winding verify
+    wind_ok = True
+    for sp, r in zip(art['subpaths'], results):
+        if r['status'] == 'removed':
+            continue
+        ao = signed_area(r['dense_orig'])
+        an = signed_area(r['dense_new'])
+        if abs(ao) > 1e-9 and abs(an) > 1e-9 and (ao > 0) != (an > 0):
+            wind_ok = False
+
+    # pixel QA
+    qa = None
+    cmp_b64 = None
+    iou, cham, changed, ssim = 1.0, 0.0, 0.0, 1.0
+    if do_qa:
+        items_o, items_n = [], []
+        for sp, r in zip(art['subpaths'], results):
+            filled = (sp['fill'] or '').strip().lower() not in (
+                '', 'none', 'transparent')
+            items_o.append((_cap(r['dense_orig'], 3000, sp['closed']),
+                            sp['closed'], filled))
+            if r['status'] == 'removed':
+                continue
+            items_n.append((_cap(r['dense_new'], 3000, r['closed']),
+                            r['closed'], filled))
+        mo = render_mask(items_o, art['vb'])
+        mn = render_mask(items_n, art['vb'])
+        m = compare_masks(mo, mn)
+        iou, cham = m['silhouette_iou'], m['chamfer_px']
+        changed, ssim = m['pixels_changed_pct'], m['ssim_alpha']
+        qa = {'geometry': {'hausdorff_max': summary['deviation_max']},
+              'render': m,
+              'topology': {
+                  'winding_preserved': wind_ok,
+                  'subpaths_before': len(art['subpaths']),
+                  'subpaths_after': len(art['subpaths']) - summary['removed_tiny'],
+                  'closed_before': sum(1 for sp in art['subpaths'] if sp['closed']),
+                  'closed_after': sum(1 for r in results
+                                      if r['closed'] and r['status'] != 'removed')}}
+        cmp_b64 = base64.b64encode(compare_png(mo, mn)).decode()
+        gates_ok, gates = qa_gates_pass(m, P['mode'])
+        qa['gates'] = gates
+        if not gates_ok and not global_revert:
+            failed = [k for k in ('iou', 'changed', 'chamfer')
+                      if not gates[k]['pass']]
+            notes.append('subject-lock gate tripped (%s) - original file '
+                         'returned untouched' % ', '.join(failed))
+            svg_out = svg_text
+            global_revert = True
+
+    # marketplace context
+    vx, vy, vw, vh = art['vb']
+    off = 0
+    union = None
+    for sp, r in zip(art['subpaths'], results):
+        if r['status'] == 'removed' or len(r['dense_new']) == 0:
+            continue
+        q = np.asarray(r['dense_new'])
+        x0, y0 = q.min(axis=0)
+        x1, y1 = q.max(axis=0)
+        if x0 < vx - 1e-6 or y0 < vy - 1e-6 or x1 > vx + vw + 1e-6 or y1 > vy + vh + 1e-6:
+            off += 1
+        box = np.array([x0, y0, x1, y1])
+        union = box if union is None else np.array(
+            [min(union[0], box[0]), min(union[1], box[1]),
+             max(union[2], box[2]), max(union[3], box[3])])
+    stroked = sum(1 for sp, r in zip(art['subpaths'], results)
+                  if r['status'] != 'removed'
+                  and (sp['stroke'] or '').strip().lower() not in ('', 'none'))
+    fullbleed = False
+    for sp, r in zip(art['subpaths'], results):
+        if sp['tag'] != 'rect' or r['status'] == 'removed':
+            continue
+        if (sp['fill'] or '').strip().lower() in ('', 'none', 'transparent'):
+            continue
+        if sp['opacity'] != '1' or sp['fill_opacity'] != '1':
+            continue
+        q = np.asarray(r['dense_new'])
+        if len(q) == 0:
+            continue
+        w = q[:, 0].max() - q[:, 0].min()
+        h = q[:, 1].max() - q[:, 1].min()
+        if w * h >= 0.98 * vw * vh:
+            fullbleed = True
+    mp_board = art['W'] * art['H'] / 1e6
+    mp_bbox = ((union[2] - union[0]) * (union[3] - union[1]) / 1e6
+              if union is not None else 0.0)
+    mp_key = (opts.get('marketplace') or 'auto').lower()
+    site_key = mp_key if mp_key in SITES else 'generic_svg'
+    basis = SITES[site_key].get('mp_basis', 'artboard')
+    before = summary['anchors_before']
+    after = summary['anchors_after']
+    red = (1.0 - after / before) if before else 0.0
+    jb = float(np.mean([r['jitter_before'] for r in results])) if results else 0.0
+    sm_j = [r['jitter_after'] for r in results if r['status'] == 'smoothed']
+    ja = float(np.mean(sm_j)) if sm_j else jb
+    ctx = {
+        'open_paths': sum(1 for r in results
+                          if not r['closed'] and r['status'] != 'removed'),
+        'dups_removed': summary['dups_removed'],
+        'spikes_removed': summary['spikes_removed'],
+        'tiny_removed': summary['removed_tiny'],
+        'tiny_remaining': sum(1 for r in results if r['status'] == 'passthrough'
+                              and 'tiny' in r.get('reason', '')),
+        'self_intersections': n_after,
+        'winding_ok': wind_ok,
+        'subpaths_before': len(art['subpaths']),
+        'subpaths_after': len(art['subpaths']) - summary['removed_tiny'],
+        'off_artboard': off,
+        'out_bytes': len(svg_out.encode('utf-8')),
+        'mp_value': mp_bbox if basis == 'bbox' else mp_board,
+        'stroked_paths': stroked,
+        'n_text': art['stats']['n_text'],
+        'n_image': art['stats']['n_image'],
+        'n_filter': art['stats']['n_filter'],
+        'artboard_at_origin': abs(vx) < 1e-9 and abs(vy) < 1e-9,
+        'vb_origin': '%.1f,%.1f' % (vx, vy),
+        'fullbleed_bg': fullbleed,
+        'iou': iou, 'chamfer_px': cham, 'reduction': red,
+        'jitter_before': jb, 'jitter_after': ja,
+        'n_smoothed': summary['smoothed'],
+    }
+    checklist, scores = build_checklist(ctx, site_key)
+    if qa is not None and 'gates' in qa:
+        g = qa['gates']
+        checklist.append({
+            'id': 'subject_lock', 'label': 'Subject lock (silhouette)',
+            'status': 'pass' if g['pass'] else 'fail',
+            'detail': 'IoU %.4f / %.3f floor, changed %.2f%% / %.1f%% max, '
+                      'chamfer %.2f / %.1f px max'
+                      % (g['iou']['value'], g['iou']['floor'],
+                         g['changed']['value'], g['changed']['ceil'],
+                         g['chamfer']['value'], g['chamfer']['ceil'])})
+    if summary.get('min_gap_before') is not None:
+        nt = summary.get('pairs_touched', 0)
+        checklist.append({
+            'id': 'separation', 'label': 'Path separation',
+            'status': 'pass',
+            'detail': ('min neighbour gap %.3f -> %.3f u, nothing merged'
+                       % (summary['min_gap_before'], summary['min_gap_after'])
+                       if not nt else
+                       '%d pair(s) would touch - kept original' % nt)})
+
+    opt_bits = ['mode=%s' % P['mode'],
+                'smooth=%.0f' % P['smoothness'],
+                'fid=%.0f' % P['fidelity']]
+    if P['movement_cap'] is not None:
+        opt_bits.append('cap=%s' % P['movement_cap'])
+    if P['noise_target'] is not None:
+        opt_bits.append('nt=%s' % P['noise_target'])
+    if opts.get('convert_shapes'):
+        opt_bits.append('shapes->path')
+    if P['round_corners']:
+        opt_bits.append('round')
+    if not P['remove_tiny']:
+        opt_bits.append('keep-tiny')
+
+    seconds = round(time.time() - t0, 2)
+    return {
+        'art': art, 'results': results, 'params': P,
+        'svg_out': svg_out, 'global_revert': global_revert,
+        'summary': summary, 'notes': sorted(set(notes)),
+        'qa': qa, 'compare_png_b64': cmp_b64,
+        'checklist': checklist, 'scores': scores,
+        'site_key': site_key,
+        'site_label': ('Auto (core checks)' if mp_key == 'auto'
+                       else SITES[site_key]['label']),
+        'mp': {'artboard': round(mp_board, 3), 'bbox': round(mp_bbox, 3)},
+        'ctx': ctx, 'seconds': seconds,
+        'options': ' '.join(opt_bits),
+        'preset_used': P['preset_used'],
+    }
+
+
+def export_eps(svg_text, opts, level=10):
+    out = run(svg_text, opts, do_qa=False)
+    eps, eps_notes = to_eps(out['art'], out['results'], level=level)
+    return eps, sorted(set(out['notes']) | set(eps_notes)), out
+
+</script>
+<script type="text/plain" id="emb-sample-star_jitter.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+<rect width="600" height="600" fill="#ffffff"/>
+<path id="star" fill="#f5a623" d="M300.00 80.00L306.21 96.23L312.11 110.83L318.11 126.62L324.88 145.09L330.48 158.84L337.77 175.82L343.55 190.31L349.60 208.00L355.84 223.14L371.40 223.63L387.84 223.70L404.94 225.84L432.62 219.39L441.23 227.87L455.33 228.47L475.09 230.17L490.51 230.50L509.23 232.02L494.95 241.94L483.98 252.76L469.57 265.44L455.75 275.16L443.31 286.16L428.63 296.99L418.26 306.02L404.50 318.67L390.35 329.36L393.97 348.07L399.85 361.07L403.42 379.53L407.46 396.16L411.92 412.66L417.91 427.70L420.88 444.45L425.12 460.16L429.31 477.98L414.31 468.55L401.57 460.80L384.75 449.45L372.55 438.91L356.96 431.77L344.49 423.42L328.38 413.04L314.09 405.90L300.00 395.00L285.16 403.89L271.65 413.31L256.68 421.44L242.51 431.39L229.44 441.82L213.76 451.06L199.05 460.70L185.05 469.41L170.69 477.98L173.60 461.85L177.49 442.72L183.34 427.45L188.18 414.40L191.42 394.73L196.89 379.44L200.80 362.16L206.09 346.44L209.65 329.36L195.30 318.45L183.27 306.57L170.31 295.97L157.88 286.31L143.70 274.63L130.26 262.27L115.94 254.05L101.64 243.76L90.77 232.02L105.89 231.86L123.92 230.90L142.04 227.37L160.32 229.66L175.91 226.79L192.85 225.03L211.28 224.52L227.06 223.26L244.16 223.14L249.68 205.83L257.95 191.16L263.84 175.44L268.21 159.16L274.57 143.63L280.97 127.38L286.07 110.92L295.62 95.17Z"/>
+</svg>
+
+</script>
+<script type="text/plain" id="emb-sample-blob_noise.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+<rect width="600" height="600" fill="#ffffff"/>
+<path id="blob" fill="#2f6fed" d="M500.73 300.00L505.26 308.60L508.28 317.49L500.79 325.37L502.79 334.30L499.98 342.51L494.88 350.04L497.99 359.78L492.84 367.15L489.39 374.99L483.61 381.75L482.27 390.48L475.89 396.70L472.48 404.46L466.11 410.36L461.46 417.30L461.86 428.29L453.38 432.40L449.68 440.56L443.54 446.58L436.92 452.06L430.47 457.72L425.43 465.25L416.83 468.10L409.47 472.50L401.81 476.33L395.00 481.73L386.07 482.92L377.35 484.00L368.11 483.13L359.20 482.19L352.65 488.59L344.42 489.38L335.75 487.41L328.04 489.87L320.11 491.34L312.11 492.42L304.06 493.64L296.00 491.18L287.61 496.98L279.95 490.77L271.00 496.36L262.73 495.37L254.10 495.70L245.01 496.95L236.91 494.18L230.98 485.58L223.75 481.39L213.60 483.61L208.25 475.51L199.92 473.34L191.83 470.45L188.52 460.39L182.72 454.51L172.56 454.05L166.39 448.39L160.39 442.56L153.41 437.66L148.66 430.64L143.61 423.95L134.74 420.07L130.41 412.68L126.21 405.25L116.34 400.97L112.87 392.89L107.73 385.60L107.59 376.18L104.21 368.18L103.17 359.42L101.78 350.89L98.68 342.79L101.20 333.62L98.98 325.39L99.97 316.80L96.96 308.51L106.85 300.00L102.55 291.72L106.40 283.74L107.58 275.69L112.48 268.28L111.39 259.91L109.91 251.19L113.50 243.69L114.95 235.56L117.99 227.94L117.27 218.64L123.02 212.15L131.37 207.29L132.12 198.33L139.35 193.26L146.88 188.76L146.81 178.58L149.02 169.68L157.47 166.16L165.79 162.95L171.58 157.37L174.51 148.31L182.40 145.07L188.91 140.16L195.42 135.20L201.73 129.79L207.39 122.85L214.45 118.19L221.76 113.88L230.08 111.98L236.26 103.84L244.91 102.68L251.90 94.93L261.46 97.96L269.46 93.16L278.10 91.60L287.07 94.44L295.54 87.12L304.42 88.76L312.89 95.15L321.64 94.14L329.89 97.58L336.69 107.66L346.08 103.54L353.80 107.31L361.72 110.03L368.47 115.88L376.86 117.16L384.59 120.23L393.76 120.64L400.32 126.23L407.28 130.96L416.64 132.17L420.53 141.20L427.32 146.09L431.07 154.43L442.57 154.41L446.83 162.12L451.56 169.18L455.43 176.81L458.23 185.04L462.00 192.37L464.30 200.49L467.52 207.90L471.14 215.04L477.53 220.96L478.49 229.33L480.27 237.22L482.33 244.95L485.53 252.36L494.34 258.69L494.92 267.03L496.88 275.13L498.55 283.33L498.90 291.66Z"/>
+</svg>
+
+</script>
+<script type="text/plain" id="emb-sample-rounded_square_dense.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+<rect width="600" height="600" fill="#ffffff"/>
+<path id="tile" fill="#7b61ff" d="M199.98 130.31L204.86 129.92L209.92 130.04L214.44 129.92L219.70 130.31L224.73 130.20L230.53 129.89L234.79 130.07L240.00 129.65L245.16 130.71L249.91 129.93L254.63 130.11L259.56 129.61L265.45 129.68L270.38 130.53L275.09 130.19L280.68 129.93L284.79 129.53L290.01 130.52L295.34 129.67L299.70 129.82L305.10 129.93L310.08 130.10L314.90 129.99L320.07 129.97L325.18 130.65L330.21 130.02L334.41 130.14L339.32 129.51L345.30 130.25L349.95 129.40L354.87 129.76L360.22 130.79L365.08 129.73L369.59 129.98L374.94 129.60L380.04 129.60L385.39 130.37L390.38 129.83L395.18 129.95L399.88 129.90L409.57 130.28L419.96 132.78L429.14 136.63L437.32 140.88L445.89 147.22L452.79 154.47L458.95 161.79L463.40 171.16L467.30 179.71L469.69 190.22L470.40 199.88L469.90 199.61L470.89 204.94L470.56 209.77L470.06 214.42L469.87 220.34L469.56 225.38L470.12 229.63L469.82 234.84L469.98 239.81L469.71 244.89L469.64 249.55L469.98 255.31L469.46 260.00L469.77 264.66L470.30 269.82L470.52 274.73L470.14 279.92L469.74 285.21L469.95 290.21L469.98 294.62L469.96 300.02L470.34 304.68L469.99 309.40L470.23 314.62L469.37 319.98L470.39 324.47L469.62 329.74L469.60 335.13L469.72 339.75L470.20 344.74L470.15 349.66L469.58 354.36L470.65 359.89L470.09 364.99L470.06 370.02L470.67 374.64L469.45 379.65L469.53 385.26L470.29 389.66L469.51 394.88L470.42 399.15L469.45 409.64L467.48 419.40L463.59 428.63L458.59 438.26L453.15 445.72L445.58 452.33L437.73 458.88L429.05 463.65L419.38 467.14L409.95 469.67L400.56 469.96L399.73 469.98L394.79 469.74L389.98 469.63L385.21 469.96L380.09 469.94L374.75 469.67L369.92 469.81L365.08 470.00L359.52 470.02L354.53 469.78L349.90 469.27L345.03 470.05L339.94 469.85L334.87 469.66L329.91 469.81L325.03 469.58L320.08 470.05L314.95 469.85L310.19 469.42L305.16 470.09L300.10 470.13L294.77 469.91L290.22 470.15L285.07 469.47L280.19 470.41L275.35 470.08L269.45 470.33L264.95 469.11L260.13 469.48L254.55 469.78L250.45 469.87L245.09 470.61L240.56 469.96L234.92 469.56L229.76 470.15L225.14 470.04L220.35 469.73L214.98 470.26L210.20 470.37L205.14 469.89L200.11 469.70L189.55 469.46L180.26 467.26L170.41 463.56L161.98 458.63L153.48 452.80L147.37 445.95L140.93 437.84L136.55 428.25L132.80 419.88L130.92 410.47L130.34 400.09L130.11 400.28L129.81 394.99L130.32 390.69L129.94 384.98L130.07 380.47L129.99 375.51L129.66 369.93L129.93 365.28L130.37 359.47L129.68 355.12L129.77 349.47L130.36 345.17L130.17 339.83L130.36 334.92L130.38 329.68L129.70 325.07L129.75 320.24L130.09 314.68L130.03 309.88L130.32 304.78L129.85 300.42L130.78 295.70L130.02 290.08L130.54 284.96L129.66 280.04L130.16 274.71L129.42 269.50L130.23 264.73L129.95 260.07L130.22 254.88L130.17 249.69L129.87 244.64L130.40 239.99L129.74 234.88L129.92 230.25L129.44 224.64L129.87 220.89L130.33 214.96L130.25 210.72L129.92 204.87L130.36 200.15L130.91 189.89L133.41 180.79L136.50 171.13L140.50 162.35L147.04 154.29L154.36 147.00L161.65 141.22L170.70 136.23L180.10 132.73L189.35 131.08L200.08 130.33Z"/>
+</svg>
+
+</script>
+</body>
+</html>
