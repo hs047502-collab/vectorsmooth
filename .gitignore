@@ -1,9 +1,0 @@
-__pycache__/
-*.py[cod]
-.pytest_cache/
-*.egg-info/
-.venv/
-.DS_Store
-Thumbs.db
-*.smooth.svg
-vectorsmooth-batch.zip
